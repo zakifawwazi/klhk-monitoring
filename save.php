@@ -35,22 +35,50 @@ if (!$data) {
 |--------------------------------------------------------------------------
 */
 
-$location       = $data["location"] ?? "";
-$kodeCerobong   = $data["kodeCerobong"] ?? "";
-$startDate      = $data["startDate"] ?? "";
-$endDate        = $data["endDate"] ?? "";
+$location       = trim($data["location"] ?? "");
+$kodeCerobong   = trim($data["kodeCerobong"] ?? "");
+$startDate      = trim($data["startDate"] ?? $data["tanggal"] ?? "");
+$endDate        = trim($data["endDate"] ?? $data["tanggal"] ?? "");
+$periodeBulan   = trim($data["periodeBulan"] ?? "");
+
+// Jika startDate terisi tetapi endDate kosong, samakan dengan startDate
+if (!empty($startDate) && empty($endDate)) {
+    $endDate = $startDate;
+}
+
+// Jika periodeBulan kosong, ambil dari startDate
+if (empty($periodeBulan) && !empty($startDate)) {
+    $periodeBulan = substr($startDate, 0, 7);
+} elseif (!empty($periodeBulan) && empty($startDate)) {
+    $startDate = $periodeBulan . "-01";
+    $endDate = date("Y-m-t", strtotime($startDate));
+}
+
+// Data satuan parameter jika dikirim
+$units = $data["units"] ?? null;
+$parameterUnitsJson = !empty($units) ? json_encode($units, JSON_UNESCAPED_UNICODE) : null;
 
 if (
     empty($location) ||
     empty($kodeCerobong) ||
-    empty($startDate) ||
-    empty($endDate)
+    empty($startDate)
 ) {
     http_response_code(400);
 
     echo json_encode([
         "success" => false,
-        "message" => "Location, kode cerobong dan periode wajib diisi"
+        "message" => "Location, kode cerobong dan tanggal wajib diisi"
+    ]);
+
+    exit;
+}
+
+if (!empty($endDate) && $startDate > $endDate) {
+    http_response_code(400);
+
+    echo json_encode([
+        "success" => false,
+        "message" => "Tanggal akhir tidak boleh lebih kecil dari tanggal mulai"
     ]);
 
     exit;
@@ -139,31 +167,40 @@ try {
     |--------------------------------------------------------------------------
     */
 
-    $sql = "
-        INSERT INTO monitoring
-        (
-            location,
-            kode_cerobong,
-            tanggal_mulai,
-            tanggal_akhir
-        )
-        VALUES (?, ?, ?, ?)
-    ";
+    // Cek kolom yang tersedia di tabel monitoring
+    $colBulanCheck = $conn->query("SHOW COLUMNS FROM monitoring LIKE 'periode_bulan'");
+    $hasPeriodeBulan = ($colBulanCheck && $colBulanCheck->num_rows > 0);
 
+    $colUnitCheck = $conn->query("SHOW COLUMNS FROM monitoring LIKE 'parameter_units'");
+    $hasParameterUnits = ($colUnitCheck && $colUnitCheck->num_rows > 0);
+
+    $cols = ["location", "kode_cerobong", "tanggal_mulai", "tanggal_akhir"];
+    $placeholders = ["?", "?", "?", "?"];
+    $types = "ssss";
+    $bindVals = [$location, $kodeCerobong, $startDate, $endDate];
+
+    if ($hasPeriodeBulan) {
+        $cols[] = "periode_bulan";
+        $placeholders[] = "?";
+        $types .= "s";
+        $bindVals[] = $periodeBulan;
+    }
+
+    if ($hasParameterUnits) {
+        $cols[] = "parameter_units";
+        $placeholders[] = "?";
+        $types .= "s";
+        $bindVals[] = $parameterUnitsJson;
+    }
+
+    $sql = "INSERT INTO monitoring (" . implode(", ", $cols) . ") VALUES (" . implode(", ", $placeholders) . ")";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
         throw new Exception($conn->error);
     }
 
-    $stmt->bind_param(
-        "ssss",
-        $location,
-        $kodeCerobong,
-        $startDate,
-        $endDate
-    );
-
+    $stmt->bind_param($types, ...$bindVals);
     $stmt->execute();
 
     $monitoringId = $conn->insert_id;

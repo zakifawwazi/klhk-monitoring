@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>KLHK Monitoring - Form Penginputan Data CEMS</title>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <!-- SheetJS (xlsx) CDN for proper Excel export -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
     :root {
@@ -53,7 +59,7 @@
       justify-content: space-between;
       align-items: center;
       font-size: 13px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .breadcrumbs {
@@ -143,6 +149,7 @@
 
     select,
     input[type="date"],
+    input[type="month"],
     input[type="text"],
     input[type="number"] {
       width: 100%;
@@ -168,10 +175,34 @@
       gap: 8px;
     }
 
+    .date-row input[type="date"] {
+      flex: 1;
+      min-width: 0;
+    }
+
     .date-row span {
       font-size: 13px;
       color: #64748b;
-      font-weight: 500;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .field-hint {
+      font-size: 11.5px;
+      color: #64748b;
+      margin-top: 2px;
+      display: block;
+    }
+
+    .badge-periode {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 13px;
+      border: 1px solid #bfdbfe;
     }
 
     /* =========================
@@ -279,6 +310,50 @@
       background: #f1f5f9;
       padding: 2px 6px;
       border-radius: 4px;
+    }
+
+    .param-unit-select {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0b5394;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 2px 6px;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .param-unit-select:hover,
+    .param-unit-select:focus {
+      border-color: #0b5394;
+      background: #e0f2fe;
+    }
+
+    .btn-small-select {
+      padding: 6px 10px;
+      font-size: 12px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #0b5394;
+      font-weight: 600;
+      transition: all 0.15s;
+      outline: none;
+    }
+
+    .btn-small-select:hover {
+      border-color: #0b5394;
+      background: #f0f9ff;
+    }
+
+    .tag-unit {
+      font-size: 10px;
+      color: #64748b;
+      font-weight: 500;
+      margin-left: 2px;
     }
 
     .param-input-wrap {
@@ -474,6 +549,235 @@
     }
 
     /* =========================
+       SEARCH & FILTER BAR
+    ========================= */
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .filter-bar .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .filter-bar .filter-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .filter-bar .filter-field input,
+    .filter-bar .filter-field select {
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .filter-bar .filter-actions {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .btn-filter {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-filter-apply {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-filter-apply:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-filter-reset {
+      background: #e2e8f0;
+      color: #475569;
+      border: 1px solid #cbd5e1;
+    }
+
+    .btn-filter-reset:hover {
+      background: #cbd5e1;
+      color: #1e293b;
+    }
+
+    /* =========================
+       PAGINATION
+    ========================= */
+
+    .pagination-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .pagination-info {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .pagination-info strong {
+      color: #1e293b;
+    }
+
+    .pagination-controls {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .pagination-controls button {
+      padding: 6px 12px;
+      font-size: 13px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #475569;
+      font-weight: 500;
+      transition: all 0.15s;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .pagination-controls button:hover:not(:disabled) {
+      background: #e2e8f0;
+      border-color: #94a3b8;
+      color: #0f172a;
+    }
+
+    .pagination-controls button.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .pagination-controls button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* =========================
+       CHART SECTION
+    ========================= */
+
+    .chart-section {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 22px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      margin-top: 24px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chart-header h3 {
+      font-size: 16px;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .chart-filter-bar .filter-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 160px;
+    }
+
+    .chart-filter-bar .filter-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #475569;
+    }
+
+    .chart-filter-bar .filter-field select {
+      padding: 8px 10px;
+      font-size: 13px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: white;
+    }
+
+    .chart-canvas-container {
+      position: relative;
+      width: 100%;
+      min-height: 400px;
+      background: #fafbfc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .chart-empty {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 300px;
+      color: #94a3b8;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .chart-legend-info {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+    }
+
+    /* =========================
        MODAL
     ========================= */
 
@@ -484,7 +788,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       z-index: 999;
       justify-content: center;
       align-items: center;
@@ -498,7 +802,7 @@
       border-radius: 8px;
       padding: 20px;
       overflow-y: auto;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
     .modal-header {
@@ -554,6 +858,18 @@
         text-align: center;
       }
 
+      .filter-bar {
+        flex-direction: column;
+      }
+
+      .filter-bar .filter-field {
+        min-width: 100%;
+      }
+
+      .chart-filter-bar {
+        flex-direction: column;
+      }
+
     }
   </style>
 
@@ -561,608 +877,782 @@
 
 <body>
 
-<div class="container">
+  <div class="container">
 
-  <!-- =========================
+    <!-- =========================
        TOP BAR
   ========================= -->
 
-  <div class="top-bar">
+    <div class="top-bar">
 
-```
-<div class="breadcrumbs">
+      <div class="breadcrumbs">
 
-  Production, Operation, Quality & Inventory Inquiry
+        Production, Operation, Quality &amp; Inventory Inquiry
 
-  <span>&gt;</span>
+        <span>&gt;</span>
 
-  Continuous Emissions Monitoring System (CEMS)
+        Continuous Emissions Monitoring System (CEMS)
 
-  <span>&gt;</span>
+        <span>&gt;</span>
 
-  <strong>KLHK Monitoring</strong>
+        <strong>KLHK Monitoring</strong>
 
-</div>
+      </div>
 
-<div class="user-info">
-  🏢 PT INDOCEMENT TUNGGAL PRAKARSA
-</div>
-```
-
-  </div>
-
-  <!-- =========================
-       FORM
-  ========================= -->
-
-  <div class="card">
-
-```
-<div class="title-header">
-
-  <h2>📊 KLHK Monitoring</h2>
-
-  <span class="badge-cems">
-    Penginputan Data Parameter (0 - 3500)
-  </span>
-
-</div>
-
-
-<form id="monitoringForm">
-
-  <!-- LOCATION / CEROBONG / PERIODE -->
-
-  <div class="form-grid">
-
-    <div class="form-field">
-
-      <label for="location">
-        Location :
-      </label>
-
-      <select
-        id="location"
-        name="location"
-        required
-      >
-
-        <option value="" disabled selected>
-          -- Pilih Location --
-        </option>
-
-        <option value="Citeureup">
-          Citeureup
-        </option>
-
-        <option value="Cirebon">
-          Cirebon
-        </option>
-
-        <option value="Tarjun">
-          Tarjun
-        </option>
-
-        <option value="Grobogan">
-          Grobogan
-        </option>
-
-        <option value="Maros">
-          Maros
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="form-field">
-
-      <label for="kodeCerobong">
-        Kode Cerobong :
-      </label>
-
-      <select
-        id="kodeCerobong"
-        name="kodeCerobong"
-        required
-      >
-
-        <option value="" disabled selected>
-          -- Pilih Kode Cerobong --
-        </option>
-
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-        <option value="14">14</option>
-        <option value="16">16</option>
-        <option value="17">17</option>
-        <option value="18">18</option>
-
-      </select>
-
-    </div>
-
-
-    <div class="form-field">
-
-      <label for="startDate">
-        Periode Tanggal :
-      </label>
-
-      <div class="date-row">
-
-        <input
-          type="date"
-          id="startDate"
-          name="startDate"
-          required
-        >
-
-        <span>s/d</span>
-
-        <input
-          type="date"
-          id="endDate"
-          name="endDate"
-          required
-        >
-
+      <div class="user-info">
+        🏢 PT INDOCEMENT TUNGGAL PRAKARSA
       </div>
 
     </div>
 
-  </div>
-
-
-  <!-- =========================
-       PARAMETER
+    <!-- =========================
+       FORM
   ========================= -->
 
-  <div class="param-container">
+    <div class="card">
 
-    <div class="param-header">
+      <div class="title-header">
 
-      <div class="param-header-left">
+        <h2>📊 KLHK Monitoring</h2>
 
-        <h3>
-          🧪 Input Nilai Parameter Monitoring
-        </h3>
-
-        <span class="note">
-          Rentang nilai yang diperbolehkan:
-          <strong>0 sampai 3500</strong>
+        <span class="badge-cems">
+          Penginputan Data Parameter (0 - 3500)
         </span>
 
       </div>
 
 
-      <div class="param-tools">
+      <form id="monitoringForm">
 
-        <button
-          type="button"
-          class="btn-small"
-          onclick="setAllValues(0)"
-        >
-          Set Semua Nilai ke 0
-        </button>
+        <!-- LOCATION / CEROBONG / PERIODE -->
 
-        <button
-          type="button"
-          class="btn-small"
-          onclick="clearAllInputs()"
-        >
-          Kosongkan Semua
-        </button>
+        <div class="form-grid">
+
+          <div class="form-field">
+
+            <label for="location">
+              Location :
+            </label>
+
+            <select id="location" name="location" required>
+
+              <option value="" disabled selected>
+                -- Pilih Location --
+              </option>
+
+              <option value="Citeureup">
+                Citeureup
+              </option>
+
+              <option value="Cirebon">
+                Cirebon
+              </option>
+
+              <option value="Tarjun">
+                Tarjun
+              </option>
+
+              <option value="Grobogan">
+                Grobogan
+              </option>
+
+              <option value="Maros">
+                Maros
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <div class="form-field">
+
+            <label for="kodeCerobong">
+              Kode Cerobong :
+            </label>
+
+            <input type="text" id="kodeCerobong" name="kodeCerobong" list="cerobongHistoryList"
+              placeholder="Ketik kode cerobong (contoh: 1, 2, KILN-1)..." autocomplete="off" required>
+
+            <datalist id="cerobongHistoryList"></datalist>
+
+            <small class="field-hint">
+              💡 Ketik langsung atau pilih dari riwayat cerobong
+            </small>
+
+          </div>
+
+
+          <div class="form-field">
+
+            <label for="startDate">
+              Periode Tanggal :
+            </label>
+
+            <div class="date-row">
+
+              <input type="date" id="startDate" name="startDate" required>
+
+              <span>s/d</span>
+
+              <input type="date" id="endDate" name="endDate" required>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <!-- =========================
+           PARAMETER
+      ========================= -->
+
+        <div class="param-container">
+
+          <div class="param-header">
+
+            <div class="param-header-left">
+
+              <h3>
+                🧪 Input Nilai Parameter Monitoring
+              </h3>
+
+              <span class="note">
+                Rentang nilai yang diperbolehkan:
+                <strong>0 sampai 3500</strong>
+              </span>
+
+            </div>
+
+
+            <div class="param-tools">
+
+              <select class="btn-small-select" id="batchUnitSelect"
+                title="Pilih satuan untuk diterapkan ke seluruh parameter"
+                onchange="setAllUnits(this.value); this.selectedIndex = 0;">
+                <option value="" disabled selected>⚡ Ubah Semua Satuan</option>
+                <option value="mg/Nm³">Set Semua ke mg/Nm³</option>
+                <option value="ng/Nm³">Set Semua ke ng/Nm³</option>
+                <option value="%">Set Semua ke %</option>
+              </select>
+
+              <button type="button" class="btn-small" onclick="setAllValues(0)">
+                Set Semua Nilai ke 0
+              </button>
+
+              <button type="button" class="btn-small" onclick="clearAllInputs()">
+                Kosongkan Semua
+              </button>
+
+            </div>
+
+          </div>
+
+
+          <div class="param-grid" id="parameterGrid"></div>
+
+        </div>
+
+
+        <!-- =========================
+           ACTION
+      ========================= -->
+
+        <div class="actions-row">
+
+          <button type="submit" class="btn btn-primary" id="btnSubmit">
+            💾 Simpan Data
+          </button>
+
+          <button type="button" class="btn btn-secondary" onclick="getDataPreview()">
+            🔍 Get Data
+          </button>
+
+          <button type="button" class="btn btn-secondary" onclick="resetForm()">
+            🔄 Reset Form
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- =========================
+       HISTORY
+  ========================= -->
+
+    <div class="data-section">
+
+      <div class="data-header">
+
+        <h3>
+          📋 Riwayat Data Penginputan
+        </h3>
+
+        <div style="display:flex;gap:8px;">
+
+          <button class="btn btn-success" onclick="exportToExcel()">
+            📥 Export ke Excel (.xlsx)
+          </button>
+
+          <button class="btn btn-secondary" onclick="clearAllData()">
+            🗑 Bersihkan Semua
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- =========================
+         SEARCH & FILTER BAR
+    ========================= -->
+
+      <div class="filter-bar" id="filterBar">
+
+        <div class="filter-field">
+          <label for="filterSearch">🔍 Pencarian</label>
+          <input type="text" id="filterSearch" placeholder="Cari location, cerobong, tanggal..."
+            oninput="applyFilters()">
+        </div>
+
+        <div class="filter-field">
+          <label for="filterLocation">Location</label>
+          <select id="filterLocation" onchange="applyFilters()">
+            <option value="">-- Semua Location --</option>
+            <option value="Citeureup">Citeureup</option>
+            <option value="Cirebon">Cirebon</option>
+            <option value="Tarjun">Tarjun</option>
+            <option value="Grobogan">Grobogan</option>
+            <option value="Maros">Maros</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="filterCerobong">Kode Cerobong</label>
+          <select id="filterCerobong" onchange="applyFilters()">
+            <option value="">-- Semua Cerobong --</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="14">14</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+          </select>
+        </div>
+
+        <div class="filter-actions">
+
+          <button class="btn-filter btn-filter-reset" onclick="resetFilters()">
+            🔄 Reset
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div id="loadingMessage" class="loading">
+        ⏳ Mengambil data dari database...
+      </div>
+
+
+      <div class="table-container">
+
+        <table id="dataTable">
+
+          <thead>
+
+            <tr>
+
+              <th style="width:45px;">
+                No
+              </th>
+
+              <th>
+                Location
+              </th>
+
+              <th>
+                Kode Cerobong
+              </th>
+
+              <th>
+                Periode Tanggal
+              </th>
+
+              <th>
+                Nilai Parameter (Terisi)
+              </th>
+
+              <th>
+                Waktu Input
+              </th>
+
+              <th style="width:120px;">
+                Aksi
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody id="tableBody"></tbody>
+
+        </table>
+
+
+        <div id="emptyMessage" class="empty-state">
+          Belum ada data monitoring yang disimpan.
+          Silakan isi form di atas dan klik
+          <strong>Simpan Data</strong>.
+        </div>
+
+      </div>
+
+
+      <!-- =========================
+         PAGINATION
+    ========================= -->
+
+      <div class="pagination-container" id="paginationContainer" style="display:none;">
+
+        <div class="pagination-info" id="paginationInfo"></div>
+
+        <div class="pagination-controls" id="paginationControls"></div>
 
       </div>
 
     </div>
 
 
-    <div
-      class="param-grid"
-      id="parameterGrid"
-    ></div>
-
-  </div>
-
-
-  <!-- =========================
-       ACTION
+    <!-- =========================
+       CHART SECTION
   ========================= -->
 
-  <div class="actions-row">
+    <div class="chart-section" id="chartSection">
 
-    <button
-      type="submit"
-      class="btn btn-primary"
-      id="btnSubmit"
-    >
-      💾 Simpan Data
-    </button>
+      <div class="chart-header">
 
-    <button
-      type="button"
-      class="btn btn-secondary"
-      onclick="getDataPreview()"
-    >
-      🔍 Get Data
-    </button>
+        <h3>
+          📈 Grafik Parameter per Lokasi & Cerobong (Bulanan)
+        </h3>
 
-    <button
-      type="button"
-      class="btn btn-secondary"
-      onclick="resetForm()"
-    >
-      🔄 Reset Form
-    </button>
+        <button class="btn btn-success" onclick="exportChartDataToExcel()">
+          📥 Export Grafik ke Excel
+        </button>
 
-  </div>
+      </div>
 
-</form>
-```
+
+      <div class="chart-filter-bar">
+
+        <div class="filter-field">
+          <label for="chartLocation">Location</label>
+          <select id="chartLocation" onchange="onChartLocationChange()">
+            <option value="">-- Pilih Location --</option>
+            <option value="Citeureup">Citeureup</option>
+            <option value="Cirebon">Cirebon</option>
+            <option value="Tarjun">Tarjun</option>
+            <option value="Grobogan">Grobogan</option>
+            <option value="Maros">Maros</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="chartCerobong">Kode Cerobong</label>
+          <select id="chartCerobong" onchange="renderChart()">
+            <option value="">-- Pilih Cerobong --</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label for="chartYear">Tahun</label>
+          <select id="chartYear" onchange="renderChart()">
+            <option value="">-- Pilih Tahun --</option>
+          </select>
+        </div>
+
+      </div>
+
+
+      <div class="chart-canvas-container" id="chartCanvasContainer">
+
+        <div class="chart-empty" id="chartEmpty">
+          Pilih Location, Kode Cerobong, dan Tahun untuk menampilkan grafik parameter bulanan.
+        </div>
+
+        <canvas id="gasChart" style="display:none;"></canvas>
+
+      </div>
+
+      <div class="chart-legend-info" id="chartLegendInfo" style="display:none;">
+        Grafik menampilkan rata-rata nilai parameter gas per bulan. Klik legenda untuk menyembunyikan/menampilkan
+        parameter tertentu.
+      </div>
+
+    </div>
 
   </div>
 
   <!-- =========================
-       HISTORY
-  ========================= -->
-
-  <div class="data-section">
-
-```
-<div class="data-header">
-
-  <h3>
-    📋 Riwayat Data Penginputan
-  </h3>
-
-  <div style="display:flex;gap:8px;">
-
-    <button
-      class="btn btn-success"
-      onclick="exportToCSV()"
-    >
-      📥 Export ke Excel (CSV)
-    </button>
-
-    <button
-      class="btn btn-secondary"
-      onclick="clearAllData()"
-    >
-      🗑 Bersihkan Semua
-    </button>
-
-  </div>
-
-</div>
-
-
-<div
-  id="loadingMessage"
-  class="loading"
->
-  ⏳ Mengambil data dari database...
-</div>
-
-
-<div class="table-container">
-
-  <table id="dataTable">
-
-    <thead>
-
-      <tr>
-
-        <th style="width:45px;">
-          No
-        </th>
-
-        <th>
-          Location
-        </th>
-
-        <th>
-          Kode Cerobong
-        </th>
-
-        <th>
-          Periode Tanggal
-        </th>
-
-        <th>
-          Nilai Parameter (Terisi)
-        </th>
-
-        <th>
-          Waktu Input
-        </th>
-
-        <th style="width:120px;">
-          Aksi
-        </th>
-
-      </tr>
-
-    </thead>
-
-    <tbody id="tableBody"></tbody>
-
-  </table>
-
-
-  <div
-    id="emptyMessage"
-    class="empty-state"
-  >
-    Belum ada data monitoring yang disimpan.
-    Silakan isi form di atas dan klik
-    <strong>Simpan Data</strong>.
-  </div>
-
-</div>
-```
-
-  </div>
-
-</div>
-
-<!-- =========================
      MODAL DETAIL
 ========================= -->
 
-<div
-  class="modal-overlay"
-  id="detailModal"
->
+  <div class="modal-overlay" id="detailModal">
 
-  <div class="modal-content">
+    <div class="modal-content">
 
-```
-<div class="modal-header">
+      <div class="modal-header">
 
-  <h3 id="modalTitle">
-    Detail Data Monitoring
-  </h3>
+        <h3 id="modalTitle">
+          Detail Data Monitoring
+        </h3>
 
-  <button
-    class="modal-close"
-    onclick="closeModal()"
-  >
-    &times;
-  </button>
+        <button class="modal-close" onclick="closeModal()">
+          &times;
+        </button>
 
-</div>
+      </div>
 
-<div id="modalBody"></div>
-```
+      <div id="modalBody"></div>
+
+    </div>
 
   </div>
 
-</div>
+  <script>
 
-<script>
+    /*
+    |--------------------------------------------------------------------------
+    | KONFIGURASI API
+    |--------------------------------------------------------------------------
+    |
+    | Karena index.html dan PHP berada dalam folder yang sama:
+    |
+    | index.html
+    | save.php
+    | get.php
+    | delete.php
+    |
+    | maka cukup menggunakan nama file.
+    |
+    */
 
-/*
-|--------------------------------------------------------------------------
-| KONFIGURASI API
-|--------------------------------------------------------------------------
-|
-| Karena index.html dan PHP berada dalam folder yang sama:
-|
-| index.html
-| save.php
-| get.php
-| delete.php
-|
-| maka cukup menggunakan nama file.
-|
-*/
+    const API = {
 
-const API = {
+      save: 'save.php',
 
-    save: 'save.php',
+      get: 'get.php',
 
-    get: 'get.php',
+      delete: 'delete.php'
 
-    delete: 'delete.php'
-
-};
+    };
 
 
-/*
-|--------------------------------------------------------------------------
-| DAFTAR PARAMETER
-|--------------------------------------------------------------------------
-|
-| Mengikuti daftar parameter pada HTML asli.
-|
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | DAFTAR PARAMETER
+    |--------------------------------------------------------------------------
+    |
+    | Mengikuti daftar parameter pada HTML asli.
+    |
+    */
 
-const PARAMETER_LIST = [
+    const PARAMETER_LIST = [
 
-    {
+      {
         id: "dust",
         name: "Dust",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "hci",
         name: "HCI",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "hf",
         name: "HF",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "so2",
         name: "SO2",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "no2",
         name: "NO2",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "co",
         name: "CO",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "noc_as_ch4",
         name: "NOC as CH4",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "zn",
         name: "Zn",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "hg",
         name: "Hg",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "cd",
         name: "Cd",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "tl",
         name: "Tl",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "sb",
         name: "Sb",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "arsenic",
         name: "As",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "cr",
         name: "Cr",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "co_metal",
         name: "Co",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "cu",
         name: "Cu",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "pb",
         name: "Pb",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "mn",
         name: "Mn",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "ni",
         name: "Ni",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "v",
         name: "V",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "be",
         name: "Be",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "se",
         name: "Se",
         unit: "mg/Nm³"
-    },
+      },
 
-    {
+      {
         id: "pcdd_pcdf",
         name: "PCDD/PCDF",
         unit: "ng/Nm³"
+      }
+
+    ];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | DATA SEMENTARA DARI MYSQL
+    |--------------------------------------------------------------------------
+    |
+    | Digunakan oleh Detail dan Export.
+    |
+    */
+
+    let databaseRecords = [];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | PAGINATION & FILTER STATE
+    |--------------------------------------------------------------------------
+    */
+
+    let filteredRecords = [];
+    let currentPage = 1;
+    const ITEMS_PER_PAGE = 5;
+
+    /** Chart.js instance */
+    let gasChartInstance = null;
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RIWAYAT KODE CEROBONG (STORAGE & AUTOCOMPLETE)
+    |--------------------------------------------------------------------------
+    */
+
+    const CEROBONG_STORAGE_KEY = 'klhk_cerobong_history';
+    const DEFAULT_CEROBONGS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '14', '16', '17', '18'];
+
+    function getCerobongHistory() {
+      let saved = [];
+      try {
+        const stored = localStorage.getItem(CEROBONG_STORAGE_KEY);
+        if (stored) {
+          saved = JSON.parse(stored);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+
+      const set = new Set([...saved]);
+
+      if (databaseRecords && databaseRecords.length > 0) {
+        databaseRecords.forEach(r => {
+          if (r.kodeCerobong) set.add(String(r.kodeCerobong).trim());
+        });
+      }
+
+      if (set.size === 0) {
+        DEFAULT_CEROBONGS.forEach(c => set.add(c));
+      }
+
+      return Array.from(set).filter(Boolean).sort((a, b) => {
+        const numA = Number(a);
+        const numB = Number(b);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return a.localeCompare(b);
+      });
     }
 
-];
+    function saveCerobongToHistory(code) {
+      if (!code) return;
+      const clean = String(code).trim();
+      if (!clean) return;
+
+      let history = [];
+      try {
+        const stored = localStorage.getItem(CEROBONG_STORAGE_KEY);
+        if (stored) history = JSON.parse(stored);
+      } catch (e) { }
+
+      if (!history.includes(clean)) {
+        history.push(clean);
+        try {
+          localStorage.setItem(CEROBONG_STORAGE_KEY, JSON.stringify(history));
+        } catch (e) { }
+      }
+      updateCerobongDatalist();
+    }
+
+    function updateCerobongDatalist() {
+      const list = document.getElementById('cerobongHistoryList');
+      if (!list) return;
+      const history = getCerobongHistory();
+      list.innerHTML = history.map(item => `<option value="${escapeHtml(item)}"></option>`).join('');
+
+      updateFilterCerobongDropdown(history);
+    }
+
+    function updateFilterCerobongDropdown(history) {
+      const filterSelect = document.getElementById('filterCerobong');
+      if (!filterSelect) return;
+      const currentVal = filterSelect.value;
+
+      const set = new Set([...history]);
+      if (databaseRecords && databaseRecords.length > 0) {
+        databaseRecords.forEach(r => {
+          if (r.kodeCerobong) set.add(String(r.kodeCerobong).trim());
+        });
+      }
+      const sorted = Array.from(set).filter(Boolean).sort((a, b) => {
+        const numA = Number(a);
+        const numB = Number(b);
+        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+        return a.localeCompare(b);
+      });
+
+      let html = '<option value="">-- Semua Cerobong --</option>';
+      sorted.forEach(c => {
+        html += `<option value="${escapeHtml(c)}" ${c === currentVal ? 'selected' : ''}>Cerobong ${escapeHtml(c)}</option>`;
+      });
+      filterSelect.innerHTML = html;
+    }
 
 
-/*
-|--------------------------------------------------------------------------
-| DATA SEMENTARA DARI MYSQL
-|--------------------------------------------------------------------------
-|
-| Digunakan oleh Detail dan Export.
-|
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER INPUT PARAMETER
+    |--------------------------------------------------------------------------
+    */
 
-let databaseRecords = [];
+    function renderParameterInputs() {
 
-
-/*
-|--------------------------------------------------------------------------
-| RENDER INPUT PARAMETER
-|--------------------------------------------------------------------------
-*/
-
-function renderParameterInputs() {
-
-    const grid =
+      const grid =
         document.getElementById('parameterGrid');
 
-    grid.innerHTML = '';
+      grid.innerHTML = '';
 
 
-    PARAMETER_LIST.forEach(param => {
+      PARAMETER_LIST.forEach(param => {
 
         const card =
-            document.createElement('div');
+          document.createElement('div');
 
         card.className = 'param-card';
 
@@ -1175,9 +1665,16 @@ function renderParameterInputs() {
                     ${param.name}
                 </span>
 
-                <span class="param-unit">
-                    ${param.unit}
-                </span>
+                <select
+                    id="unit_${param.id}"
+                    data-id="${param.id}"
+                    class="param-unit-select"
+                    title="Pilih satuan untuk ${param.name}"
+                >
+                    <option value="mg/Nm³" ${param.unit === 'mg/Nm³' ? 'selected' : ''}>mg/Nm³</option>
+                    <option value="ng/Nm³" ${param.unit === 'ng/Nm³' ? 'selected' : ''}>ng/Nm³</option>
+                    <option value="%" ${param.unit === '%' ? 'selected' : ''}>%</option>
+                </select>
 
             </div>
 
@@ -1203,680 +1700,928 @@ function renderParameterInputs() {
 
         grid.appendChild(card);
 
-    });
+      });
 
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| VALIDASI INPUT
-|--------------------------------------------------------------------------
-*/
-
-function validateInput(input) {
-
-    const val =
-        parseFloat(input.value);
-
-
-    if (input.value === '') {
-
-        input.classList.remove(
-            'has-value',
-            'invalid'
-        );
-
-        return;
     }
 
 
-    if (
+    /*
+    |--------------------------------------------------------------------------
+    | SET SEMUA SATUAN PARAMETER
+    |--------------------------------------------------------------------------
+    */
+
+    function setAllUnits(unitVal) {
+      if (!unitVal) return;
+      PARAMETER_LIST.forEach(param => {
+        const selectElem = document.getElementById(`unit_${param.id}`);
+        if (selectElem) {
+          selectElem.value = unitVal;
+        }
+      });
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDASI INPUT
+    |--------------------------------------------------------------------------
+    */
+
+    function validateInput(input) {
+
+      const val =
+        parseFloat(input.value);
+
+
+      if (input.value === '') {
+
+        input.classList.remove(
+          'has-value',
+          'invalid'
+        );
+
+        return;
+      }
+
+
+      if (
         isNaN(val) ||
         val < 0 ||
         val > 3500
-    ) {
+      ) {
 
         input.classList.add('invalid');
 
         input.classList.remove('has-value');
 
-    } else {
+      } else {
 
         input.classList.remove('invalid');
 
         input.classList.add('has-value');
 
+      }
+
     }
 
-}
 
+    /*
+    |--------------------------------------------------------------------------
+    | SET SEMUA NILAI
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| SET SEMUA NILAI
-|--------------------------------------------------------------------------
-*/
+    function setAllValues(value) {
 
-function setAllValues(value) {
-
-    const inputs =
+      const inputs =
         document.querySelectorAll(
-            '.param-number-input'
+          '.param-number-input'
         );
 
 
-    inputs.forEach(input => {
+      inputs.forEach(input => {
 
         input.value = value;
 
         validateInput(input);
 
-    });
+      });
 
-}
+    }
 
 
-/*
-|--------------------------------------------------------------------------
-| CLEAR PARAMETER
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | CLEAR PARAMETER
+    |--------------------------------------------------------------------------
+    */
 
-function clearAllInputs() {
+    function clearAllInputs() {
 
-    const inputs =
+      const inputs =
         document.querySelectorAll(
-            '.param-number-input'
+          '.param-number-input'
         );
 
 
-    inputs.forEach(input => {
+      inputs.forEach(input => {
 
         input.value = '';
 
         validateInput(input);
 
-    });
+      });
 
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| DEFAULT DATE
-|--------------------------------------------------------------------------
-*/
-
-function setDefaultDates() {
-
-    const today =
-        new Date()
-            .toISOString()
-            .split('T')[0];
+    }
 
 
-    document.getElementById(
-        'startDate'
-    ).value = today;
+    /*
+    |--------------------------------------------------------------------------
+    | INDONESIAN MONTH NAMES & HELPER
+    |--------------------------------------------------------------------------
+    */
+
+    const INDO_MONTHS = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    function formatIndoDate(dateStr) {
+      if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr || '-';
+      const [y, m, d] = dateStr.split('-');
+      const mIdx = parseInt(m, 10) - 1;
+      const monthName = INDO_MONTHS[mIdx] || m;
+      return `${parseInt(d, 10)} ${monthName} ${y}`;
+    }
+
+    function formatPeriodeDisplay(item) {
+      if (!item) return '-';
+      if (item.startDate && item.endDate) {
+        if (item.startDate === item.endDate) {
+          return formatIndoDate(item.startDate);
+        }
+        return `${formatIndoDate(item.startDate)} s/d ${formatIndoDate(item.endDate)}`;
+      }
+      if (item.startDate) return formatIndoDate(item.startDate);
+      if (item.periodeBulan) return item.periodeBulan;
+      return '-';
+    }
 
 
-    document.getElementById(
-        'endDate'
-    ).value = today;
+    /*
+    |--------------------------------------------------------------------------
+    | DEFAULT DATE (HARI INI)
+    |--------------------------------------------------------------------------
+    */
 
-}
+    function setDefaultDates() {
+      const today = new Date().toISOString().split('T')[0];
+      const sElem = document.getElementById('startDate');
+      const eElem = document.getElementById('endDate');
+      if (sElem) sElem.value = today;
+      if (eElem) eElem.value = today;
+    }
 
 
-/*
-|--------------------------------------------------------------------------
-| RESET FORM
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | RESET FORM
+    |--------------------------------------------------------------------------
+    */
 
-function resetForm() {
+    function resetForm() {
 
-    document.getElementById(
+      document.getElementById(
         'monitoringForm'
-    ).reset();
+      ).reset();
+
+      clearAllInputs();
+
+      setDefaultDates();
+
+    }
 
 
-    clearAllInputs();
+    /*
+    |--------------------------------------------------------------------------
+    | SUBMIT DATA KE PHP
+    |--------------------------------------------------------------------------
+    */
 
-    setDefaultDates();
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| SUBMIT DATA KE PHP
-|--------------------------------------------------------------------------
-*/
-
-document
-    .getElementById('monitoringForm')
-    .addEventListener(
+    document
+      .getElementById('monitoringForm')
+      .addEventListener(
         'submit',
-        async function(e) {
+        async function (e) {
 
-            e.preventDefault();
-
-
-            const location =
-                document.getElementById(
-                    'location'
-                ).value;
+          e.preventDefault();
 
 
-            const kodeCerobong =
-                document.getElementById(
-                    'kodeCerobong'
-                ).value;
+          const location =
+            document.getElementById(
+              'location'
+            ).value;
 
 
-            const startDate =
-                document.getElementById(
-                    'startDate'
-                ).value;
+          const kodeCerobong =
+            document.getElementById(
+              'kodeCerobong'
+            ).value.trim();
 
 
-            const endDate =
-                document.getElementById(
-                    'endDate'
-                ).value;
+          const startDate =
+            document.getElementById(
+              'startDate'
+            ).value;
+
+          const endDate =
+            document.getElementById(
+              'endDate'
+            ).value;
 
 
-            /*
-            -----------------------------------
-            VALIDASI PERIODE
-            -----------------------------------
-            */
+          /*
+          -----------------------------------
+          VALIDASI TANGGAL & INPUT UTAMA
+          -----------------------------------
+          */
 
-            if (endDate < startDate) {
+          if (!location) {
+            alert('⚠️ Silakan pilih Location terlebih dahulu.');
+            return;
+          }
 
-                alert(
-                    '⚠️ Tanggal akhir tidak boleh ' +
-                    'lebih kecil dari tanggal mulai.'
+          if (!kodeCerobong) {
+            alert('⚠️ Silakan ketik atau pilih Kode Cerobong terlebih dahulu.');
+            return;
+          }
+
+          if (!startDate || !endDate) {
+            alert('⚠️ Silakan pilih tanggal mulai dan tanggal akhir terlebih dahulu.');
+            return;
+          }
+
+          if (startDate > endDate) {
+            alert('⚠️ Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.');
+            return;
+          }
+
+          const periodeBulan = startDate.substring(0, 7);
+
+          // Simpan kode cerobong ke riwayat autocomplete
+          saveCerobongToHistory(kodeCerobong);
+
+
+          /*
+          -----------------------------------
+          AMBIL NILAI & SATUAN PARAMETER
+          -----------------------------------
+          */
+
+          const values = {};
+          const units = {};
+
+          let hasInvalid = false;
+
+          let filledCount = 0;
+
+
+          PARAMETER_LIST.forEach(param => {
+
+            const input =
+              document.getElementById(
+                `param_${param.id}`
+              );
+
+            const unitSelect =
+              document.getElementById(
+                `unit_${param.id}`
+              );
+
+            units[param.id] =
+              unitSelect ? unitSelect.value : param.unit;
+
+
+            const valStr =
+              input.value.trim();
+
+
+            if (valStr !== '') {
+
+              const numVal =
+                parseFloat(valStr);
+
+
+              if (
+                isNaN(numVal) ||
+                numVal < 0 ||
+                numVal > 3500
+              ) {
+
+                hasInvalid = true;
+
+                input.classList.add(
+                  'invalid'
                 );
 
-                return;
+              } else {
+
+                values[param.id] =
+                  numVal;
+
+                filledCount++;
+
+              }
+
+            } else {
+
+              values[param.id] = null;
+
+            }
+
+          });
+
+
+          /*
+          -----------------------------------
+          CEK VALIDASI
+          -----------------------------------
+          */
+
+          if (hasInvalid) {
+
+            alert(
+              '⚠️ Terdapat nilai parameter ' +
+              'yang tidak valid.\n\n' +
+              'Pastikan semua angka berada ' +
+              'dalam rentang 0 sampai 3500.'
+            );
+
+            return;
+
+          }
+
+
+          if (filledCount === 0) {
+
+            if (
+              !confirm(
+                'Anda belum menginput nilai ' +
+                'parameter apapun.\n\n' +
+                'Apakah tetap ingin menyimpan ' +
+                'data ini?'
+              )
+            ) {
+
+              return;
+
+            }
+
+          }
+
+
+          /*
+          -----------------------------------
+          OBJECT DATA
+          -----------------------------------
+          */
+
+          const data = {
+
+            location: location,
+
+            kodeCerobong: kodeCerobong,
+
+            periodeBulan: periodeBulan,
+
+            startDate: startDate,
+
+            endDate: endDate,
+
+            values: values,
+
+            units: units
+
+          };
+
+
+          /*
+          -----------------------------------
+          DISABLE BUTTON
+          -----------------------------------
+          */
+
+          const button =
+            document.getElementById(
+              'btnSubmit'
+            );
+
+
+          button.disabled = true;
+
+          button.innerHTML =
+            '⏳ Menyimpan...';
+
+
+          try {
+
+            /*
+            --------------------------------
+            FETCH SAVE.PHP
+            --------------------------------
+            */
+
+            const response =
+              await fetch(
+                API.save,
+                {
+
+                  method: 'POST',
+
+                  headers: {
+                    'Content-Type':
+                      'application/json'
+                  },
+
+                  body:
+                    JSON.stringify(data)
+
+                }
+              );
+
+
+            const result =
+              await response.json();
+
+
+            if (
+              !response.ok ||
+              !result.success
+            ) {
+
+              throw new Error(
+                result.message ||
+                'Gagal menyimpan data.'
+              );
+
             }
 
 
             /*
-            -----------------------------------
-            AMBIL NILAI PARAMETER
-            -----------------------------------
+            --------------------------------
+            BERHASIL
+            --------------------------------
             */
 
-            const values = {};
-
-            let hasInvalid = false;
-
-            let filledCount = 0;
-
-
-            PARAMETER_LIST.forEach(param => {
-
-                const input =
-                    document.getElementById(
-                        `param_${param.id}`
-                    );
+            alert(
+              '✅ Data monitoring KLHK ' +
+              'berhasil disimpan!\n\n' +
+              'ID Monitoring: ' +
+              result.monitoring_id
+            );
 
 
-                const valStr =
-                    input.value.trim();
+            resetForm();
 
 
-                if (valStr !== '') {
+            /*
+            Refresh tabel
+            */
 
-                    const numVal =
-                        parseFloat(valStr);
+            await renderTableFromDatabase();
 
 
-                    if (
-                        isNaN(numVal) ||
-                        numVal < 0 ||
-                        numVal > 3500
-                    ) {
+          } catch (error) {
 
-                        hasInvalid = true;
+            console.error(error);
 
-                        input.classList.add(
-                            'invalid'
-                        );
 
-                    } else {
+            alert(
+              '❌ Gagal menyimpan data ke database.\n\n' +
+              error.message
+            );
 
-                        values[param.id] =
-                            numVal;
 
-                        filledCount++;
+          } finally {
 
-                    }
+            button.disabled = false;
 
-                } else {
+            button.innerHTML =
+              '💾 Simpan Data';
 
-                    values[param.id] = null;
+          }
 
-                }
+        }
+      );
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | FILTER / SEARCH LOGIC
+    |--------------------------------------------------------------------------
+    */
+
+    function applyFilters() {
+
+      const searchTerm =
+        document.getElementById('filterSearch')
+          .value.toLowerCase().trim();
+
+      const filterLocation =
+        document.getElementById('filterLocation').value;
+
+      const filterCerobong =
+        document.getElementById('filterCerobong').value;
+
+
+      filteredRecords = databaseRecords.filter(item => {
+
+        /* Filter by location dropdown */
+        if (
+          filterLocation &&
+          item.location !== filterLocation
+        ) {
+          return false;
+        }
+
+        /* Filter by cerobong dropdown */
+        if (
+          filterCerobong &&
+          item.kodeCerobong !== filterCerobong
+        ) {
+          return false;
+        }
+
+        /* Search keyword */
+        if (searchTerm) {
+
+          const searchTarget = [
+            item.location,
+            'Cerobong ' + item.kodeCerobong,
+            item.kodeCerobong,
+            item.periodeBulan || '',
+            formatPeriodeDisplay(item),
+            item.startDate,
+            item.endDate,
+            item.timestamp
+          ].join(' ').toLowerCase();
+
+          if (!searchTarget.includes(searchTerm)) {
+            return false;
+          }
+
+        }
+
+        return true;
+
+      });
+
+      currentPage = 1;
+      renderFilteredTable();
+
+    }
+
+
+    function resetFilters() {
+
+      document.getElementById('filterSearch').value = '';
+      document.getElementById('filterLocation').value = '';
+      document.getElementById('filterCerobong').value = '';
+
+      applyFilters();
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER FILTERED TABLE WITH PAGINATION
+    |--------------------------------------------------------------------------
+    */
+
+    function renderFilteredTable() {
+
+      const tbody =
+        document.getElementById('tableBody');
+
+      const emptyMessage =
+        document.getElementById('emptyMessage');
+
+      const paginationContainer =
+        document.getElementById('paginationContainer');
+
+
+      tbody.innerHTML = '';
+
+
+      if (filteredRecords.length === 0) {
+
+        emptyMessage.style.display = 'block';
+        paginationContainer.style.display = 'none';
+        return;
+
+      }
+
+
+      emptyMessage.style.display = 'none';
+
+
+      /* Calculate pagination */
+      const totalItems = filteredRecords.length;
+      const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+      if (currentPage > totalPages) {
+        currentPage = totalPages;
+      }
+
+      const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+      const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+      const pageItems = filteredRecords.slice(startIndex, endIndex);
+
+
+      /* Render rows */
+      pageItems.forEach((item, localIndex) => {
+
+        const globalIndex = startIndex + localIndex;
+
+        /* Find the real index in databaseRecords for viewDetail */
+        const realIndex = databaseRecords.indexOf(item);
+
+        const tr =
+          document.createElement('tr');
+
+
+        const filledParams =
+          Object.keys(item.values || {})
+            .filter(
+              key =>
+                item.values[key] !== null &&
+                item.values[key] !== ''
+            )
+            .map(key => {
+
+              const parameter =
+                PARAMETER_LIST.find(
+                  p => p.id === key
+                );
+
+              const name =
+                parameter
+                  ? parameter.name
+                  : key;
+
+              return `
+                        <span class="tag-val">
+                            ${name}:
+                            <strong>
+                                ${item.values[key]}
+                            </strong>
+                        </span>
+                    `;
 
             });
 
 
-            /*
-            -----------------------------------
-            CEK VALIDASI
-            -----------------------------------
-            */
+        tr.innerHTML = `
 
-            if (hasInvalid) {
+            <td>
+                ${globalIndex + 1}
+            </td>
 
-                alert(
-                    '⚠️ Terdapat nilai parameter ' +
-                    'yang tidak valid.\n\n' +
-                    'Pastikan semua angka berada ' +
-                    'dalam rentang 0 sampai 3500.'
-                );
+            <td>
+                <strong>
+                    ${escapeHtml(item.location)}
+                </strong>
+            </td>
 
-                return;
+            <td>
+                Cerobong
+                ${escapeHtml(item.kodeCerobong)}
+            </td>
 
-            }
+            <td>
+                <span class="badge-periode">
+                    ${formatPeriodeDisplay(item)}
+                </span>
+                <div style="font-size:11px;color:#64748b;margin-top:3px;">
+                    ${item.startDate} s/d ${item.endDate}
+                </div>
+            </td>
 
+            <td>
+                <div class="param-badge-container">
+                    ${filledParams.length > 0
+            ? filledParams.join('')
+            : `<span style="color:#94a3b8;">
+                            Tidak ada nilai yang diinput
+                           </span>`
+          }
+                </div>
+            </td>
 
-            if (filledCount === 0) {
+            <td
+                style="color:#64748b;font-size:12px;"
+            >
+                ${item.timestamp}
+            </td>
 
-                if (
-                    !confirm(
-                        'Anda belum menginput nilai ' +
-                        'parameter apapun.\n\n' +
-                        'Apakah tetap ingin menyimpan ' +
-                        'data ini?'
-                    )
-                ) {
+            <td>
+                <button
+                    class="btn-small"
+                    style="padding:3px 6px;"
+                    onclick="viewDetail(${realIndex})"
+                >
+                    Detail
+                </button>
 
-                    return;
+                <button
+                    class="delete-btn"
+                    onclick="deleteRecord(${item.id})"
+                >
+                    Hapus
+                </button>
+            </td>
 
-                }
-
-            }
-
-
-            /*
-            -----------------------------------
-            OBJECT DATA
-            -----------------------------------
-            */
-
-            const data = {
-
-                location: location,
-
-                kodeCerobong: kodeCerobong,
-
-                startDate: startDate,
-
-                endDate: endDate,
-
-                values: values
-
-            };
-
-
-            /*
-            -----------------------------------
-            DISABLE BUTTON
-            -----------------------------------
-            */
-
-            const button =
-                document.getElementById(
-                    'btnSubmit'
-                );
+        `;
 
 
-            button.disabled = true;
+        tbody.appendChild(tr);
 
-            button.innerHTML =
-                '⏳ Menyimpan...';
-
-
-            try {
-
-                /*
-                --------------------------------
-                FETCH SAVE.PHP
-                --------------------------------
-                */
-
-                const response =
-                    await fetch(
-                        API.save,
-                        {
-
-                            method: 'POST',
-
-                            headers: {
-                                'Content-Type':
-                                    'application/json'
-                            },
-
-                            body:
-                                JSON.stringify(data)
-
-                        }
-                    );
+      });
 
 
-                const result =
-                    await response.json();
+      /* Render pagination */
+      renderPagination(totalItems, totalPages);
+
+    }
 
 
-                if (
-                    !response.ok ||
-                    !result.success
-                ) {
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER PAGINATION
+    |--------------------------------------------------------------------------
+    */
 
-                    throw new Error(
-                        result.message ||
-                        'Gagal menyimpan data.'
-                    );
+    function renderPagination(totalItems, totalPages) {
 
-                }
+      const container =
+        document.getElementById('paginationContainer');
 
+      const info =
+        document.getElementById('paginationInfo');
 
-                /*
-                --------------------------------
-                BERHASIL
-                --------------------------------
-                */
-
-                alert(
-                    '✅ Data monitoring KLHK ' +
-                    'berhasil disimpan!\n\n' +
-                    'ID Monitoring: ' +
-                    result.monitoring_id
-                );
+      const controls =
+        document.getElementById('paginationControls');
 
 
-                resetForm();
+      if (totalPages <= 1) {
+
+        container.style.display = 'flex';
+
+        const startItem = 1;
+        const endItem = totalItems;
+
+        info.innerHTML =
+          `Menampilkan <strong>${startItem}-${endItem}</strong> dari <strong>${totalItems}</strong> data`;
+
+        controls.innerHTML = '';
+        return;
+
+      }
+
+      container.style.display = 'flex';
 
 
-                /*
-                Refresh tabel
-                */
+      const startItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+      const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
 
-                await renderTableFromDatabase();
-
-
-            } catch (error) {
-
-                console.error(error);
+      info.innerHTML =
+        `Menampilkan <strong>${startItem}-${endItem}</strong> dari <strong>${totalItems}</strong> data (Halaman ${currentPage} dari ${totalPages})`;
 
 
-                alert(
-                    '❌ Gagal menyimpan data ke database.\n\n' +
-                    error.message
-                );
+      let controlsHTML = '';
 
+      /* Prev button */
+      controlsHTML += `
+        <button
+            onclick="goToPage(${currentPage - 1})"
+            ${currentPage === 1 ? 'disabled' : ''}
+        >
+            ‹ Prev
+        </button>
+    `;
 
-            } finally {
+      /* Page buttons */
+      const maxVisiblePages = 5;
+      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 
-                button.disabled = false;
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
 
-                button.innerHTML =
-                    '💾 Simpan Data';
-
-            }
-
+      if (startPage > 1) {
+        controlsHTML += `<button onclick="goToPage(1)">1</button>`;
+        if (startPage > 2) {
+          controlsHTML += `<button disabled>...</button>`;
         }
-    );
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        controlsHTML += `
+            <button
+                onclick="goToPage(${i})"
+                class="${i === currentPage ? 'active' : ''}"
+            >
+                ${i}
+            </button>
+        `;
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+          controlsHTML += `<button disabled>...</button>`;
+        }
+        controlsHTML += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+      }
+
+      /* Next button */
+      controlsHTML += `
+        <button
+            onclick="goToPage(${currentPage + 1})"
+            ${currentPage === totalPages ? 'disabled' : ''}
+        >
+            Next ›
+        </button>
+    `;
 
 
-/*
-|--------------------------------------------------------------------------
-| GET DATA DARI MYSQL
-|--------------------------------------------------------------------------
-*/
+      controls.innerHTML = controlsHTML;
 
-async function renderTableFromDatabase() {
+    }
 
-    const loading =
+
+    function goToPage(page) {
+
+      const totalPages = Math.ceil(filteredRecords.length / ITEMS_PER_PAGE);
+
+      if (page < 1 || page > totalPages) return;
+
+      currentPage = page;
+      renderFilteredTable();
+
+      /* Scroll to table */
+      document.getElementById('dataTable')
+        .scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | GET DATA DARI MYSQL
+    |--------------------------------------------------------------------------
+    */
+
+    async function renderTableFromDatabase() {
+
+      const loading =
         document.getElementById(
-            'loadingMessage'
+          'loadingMessage'
         );
 
 
-    const emptyMessage =
+      const emptyMessage =
         document.getElementById(
-            'emptyMessage'
+          'emptyMessage'
         );
 
 
-    loading.style.display = 'block';
+      loading.style.display = 'block';
 
 
-    try {
+      try {
 
         const response =
-            await fetch(API.get);
+          await fetch(API.get);
 
 
         const result =
-            await response.json();
+          await response.json();
 
 
         if (
-            !response.ok ||
-            !result.success
+          !response.ok ||
+          !result.success
         ) {
 
-            throw new Error(
-                result.message ||
-                'Gagal mengambil data.'
-            );
+          throw new Error(
+            result.message ||
+            'Gagal mengambil data.'
+          );
 
         }
 
 
         databaseRecords =
-            result.data || [];
+          result.data || [];
 
 
-        const tbody =
-            document.getElementById(
-                'tableBody'
-            );
+        /* Apply filters and render */
+        applyFilters();
+
+        /* Update chart dropdowns */
+        populateChartYearDropdown();
 
 
-        tbody.innerHTML = '';
-
-
-        /*
-        -----------------------------------
-        EMPTY
-        -----------------------------------
-        */
-
-        if (databaseRecords.length === 0) {
-
-            emptyMessage.style.display =
-                'block';
-
-            return;
-
-        }
-
-
-        emptyMessage.style.display =
-            'none';
-
-
-        /*
-        -----------------------------------
-        RENDER TABLE
-        -----------------------------------
-        */
-
-        databaseRecords.forEach(
-            (item, index) => {
-
-                const tr =
-                    document.createElement(
-                        'tr'
-                    );
-
-
-                const filledParams =
-                    Object.keys(
-                        item.values || {}
-                    )
-
-                    .filter(
-                        key =>
-                            item.values[key] !==
-                            null &&
-                            item.values[key] !== ''
-                    )
-
-                    .map(key => {
-
-                        const parameter =
-                            PARAMETER_LIST.find(
-                                p =>
-                                    p.id === key
-                            );
-
-
-                        const name =
-                            parameter
-                                ? parameter.name
-                                : key;
-
-
-                        return `
-
-                            <span class="tag-val">
-
-                                ${name}:
-
-                                <strong>
-                                    ${item.values[key]}
-                                </strong>
-
-                            </span>
-
-                        `;
-
-                    });
-
-
-                tr.innerHTML = `
-
-                    <td>
-                        ${index + 1}
-                    </td>
-
-                    <td>
-                        <strong>
-                            ${escapeHtml(
-                                item.location
-                            )}
-                        </strong>
-                    </td>
-
-                    <td>
-                        Cerobong
-                        ${escapeHtml(
-                            item.kodeCerobong
-                        )}
-                    </td>
-
-                    <td>
-                        ${item.startDate}
-                        s/d
-                        ${item.endDate}
-                    </td>
-
-                    <td>
-
-                        <div
-                            class="param-badge-container"
-                        >
-
-                            ${
-                                filledParams.length > 0
-
-                                ? filledParams.join('')
-
-                                : `
-                                    <span
-                                        style="
-                                            color:#94a3b8;
-                                        "
-                                    >
-                                        Tidak ada nilai
-                                        yang diinput
-                                    </span>
-                                  `
-                            }
-
-                        </div>
-
-                    </td>
-
-                    <td
-                        style="
-                            color:#64748b;
-                            font-size:12px;
-                        "
-                    >
-                        ${item.timestamp}
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="btn-small"
-                            style="
-                                padding:3px 6px;
-                            "
-                            onclick="
-                                viewDetail(${index})
-                            "
-                        >
-                            Detail
-                        </button>
-
-
-                        <button
-                            class="delete-btn"
-                            onclick="
-                                deleteRecord(${item.id})
-                            "
-                        >
-                            Hapus
-                        </button>
-
-                    </td>
-
-                `;
-
-
-                tbody.appendChild(tr);
-
-            }
-        );
-
-
-    } catch (error) {
+      } catch (error) {
 
         console.error(error);
 
 
         emptyMessage.style.display =
-            'block';
+          'block';
 
 
         emptyMessage.innerHTML = `
@@ -1887,39 +2632,39 @@ async function renderTableFromDatabase() {
 
             <small>
                 ${escapeHtml(
-                    error.message
-                )}
+          error.message
+        )}
             </small>
 
         `;
 
 
-    } finally {
+      } finally {
 
         loading.style.display = 'none';
 
+      }
+
     }
 
-}
 
+    /*
+    |--------------------------------------------------------------------------
+    | ESCAPE HTML
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| ESCAPE HTML
-|--------------------------------------------------------------------------
-*/
+    function escapeHtml(value) {
 
-function escapeHtml(value) {
-
-    if (value === null ||
+      if (value === null ||
         value === undefined) {
 
         return '';
 
-    }
+      }
 
 
-    return String(value)
+      return String(value)
 
         .replaceAll('&', '&amp;')
 
@@ -1931,37 +2676,37 @@ function escapeHtml(value) {
 
         .replaceAll("'", '&#039;');
 
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| DETAIL DATA
-|--------------------------------------------------------------------------
-*/
-
-function viewDetail(index) {
-
-    const item =
-        databaseRecords[index];
-
-
-    if (!item) {
-
-        return;
-
     }
 
 
-    document.getElementById(
+    /*
+    |--------------------------------------------------------------------------
+    | DETAIL DATA
+    |--------------------------------------------------------------------------
+    */
+
+    function viewDetail(index) {
+
+      const item =
+        databaseRecords[index];
+
+
+      if (!item) {
+
+        return;
+
+      }
+
+
+      document.getElementById(
         'modalTitle'
-    ).innerText =
+      ).innerText =
 
         `Detail Data: ${item.location}
         (Cerobong ${item.kodeCerobong})`;
 
 
-    let html = `
+      let html = `
 
         <div
             style="
@@ -1982,10 +2727,13 @@ function viewDetail(index) {
             </div>
 
             <div>
-                <strong>Periode Tanggal:</strong>
-                ${item.startDate}
-                s/d
-                ${item.endDate}
+                <strong>Periode Bulan:</strong>
+                <span style="color:#0b5394;font-weight:700;">
+                    ${formatPeriodeDisplay(item)}
+                </span>
+                <span style="color:#64748b;font-size:12px;">
+                    (${item.startDate} s/d ${item.endDate})
+                </span>
             </div>
 
             <div>
@@ -2021,17 +2769,17 @@ function viewDetail(index) {
     `;
 
 
-    PARAMETER_LIST.forEach(param => {
+      PARAMETER_LIST.forEach(param => {
 
         const val =
 
-            item.values &&
+          item.values &&
             item.values[param.id] !== null &&
             item.values[param.id] !== undefined
 
-                ? item.values[param.id]
+            ? item.values[param.id]
 
-                : '-';
+            : '-';
 
 
         html += `
@@ -2075,204 +2823,213 @@ function viewDetail(index) {
 
         `;
 
-    });
+      });
 
 
-    html += `</div>`;
+      html += `</div>`;
 
 
-    document.getElementById(
+      document.getElementById(
         'modalBody'
-    ).innerHTML = html;
+      ).innerHTML = html;
 
 
-    document.getElementById(
+      document.getElementById(
         'detailModal'
-    ).style.display = 'flex';
+      ).style.display = 'flex';
 
-}
+    }
 
 
-/*
-|--------------------------------------------------------------------------
-| CLOSE MODAL
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | CLOSE MODAL
+    |--------------------------------------------------------------------------
+    */
 
-function closeModal() {
+    function closeModal() {
 
-    document.getElementById(
+      document.getElementById(
         'detailModal'
-    ).style.display = 'none';
+      ).style.display = 'none';
 
-}
+    }
 
 
-/*
-|--------------------------------------------------------------------------
-| CLICK OUTSIDE MODAL
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | CLICK OUTSIDE MODAL
+    |--------------------------------------------------------------------------
+    */
 
-window.onclick = function(e) {
+    window.onclick = function (e) {
 
-    const modal =
+      const modal =
         document.getElementById(
-            'detailModal'
+          'detailModal'
         );
 
 
-    if (e.target === modal) {
+      if (e.target === modal) {
 
         closeModal();
 
-    }
+      }
 
-};
+    };
 
 
-/*
-|--------------------------------------------------------------------------
-| DELETE DATA
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE DATA
+    |--------------------------------------------------------------------------
+    */
 
-async function deleteRecord(id) {
+    async function deleteRecord(id) {
 
-    if (
+      if (
         !confirm(
-            'Apakah Anda yakin ingin ' +
-            'menghapus data monitoring ini?'
+          'Apakah Anda yakin ingin ' +
+          'menghapus data monitoring ini?'
         )
-    ) {
+      ) {
 
         return;
 
-    }
+      }
 
 
-    try {
+      try {
 
         const response =
-            await fetch(
-                API.delete,
-                {
+          await fetch(
+            API.delete,
+            {
 
-                    method: 'POST',
+              method: 'POST',
 
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    },
+              headers: {
+                'Content-Type':
+                  'application/json'
+              },
 
-                    body:
-                        JSON.stringify({
-                            id: id
-                        })
+              body:
+                JSON.stringify({
+                  id: id
+                })
 
-                }
-            );
+            }
+          );
 
 
         const result =
-            await response.json();
+          await response.json();
 
 
         if (
-            !response.ok ||
-            !result.success
+          !response.ok ||
+          !result.success
         ) {
 
-            throw new Error(
-                result.message ||
-                'Gagal menghapus data.'
-            );
+          throw new Error(
+            result.message ||
+            'Gagal menghapus data.'
+          );
 
         }
 
 
         alert(
-            '✅ Data berhasil dihapus.'
+          '✅ Data berhasil dihapus.'
         );
 
 
         await renderTableFromDatabase();
 
 
-    } catch (error) {
+      } catch (error) {
 
         console.error(error);
 
 
         alert(
-            '❌ Gagal menghapus data.\n\n' +
-            error.message
+          '❌ Gagal menghapus data.\n\n' +
+          error.message
         );
+
+      }
 
     }
 
-}
 
+    /*
+    |--------------------------------------------------------------------------
+    | GET DATA PREVIEW
+    |--------------------------------------------------------------------------
+    */
 
-/*
-|--------------------------------------------------------------------------
-| GET DATA PREVIEW
-|--------------------------------------------------------------------------
-*/
+    function getDataPreview() {
 
-function getDataPreview() {
-
-    const location =
+      const location =
         document.getElementById(
-            'location'
+          'location'
         ).value ||
         'Semua';
 
 
-    const kodeCerobong =
+      const kodeCerobong =
         document.getElementById(
-            'kodeCerobong'
+          'kodeCerobong'
         ).value ||
         'Semua';
 
 
-    const startDate =
+      const periodeBulan =
         document.getElementById(
-            'startDate'
+          'periodeBulan'
         ).value;
 
+      let startDate = '';
+      let endDate = '';
+      let displayMonth = '-';
 
-    const endDate =
-        document.getElementById(
-            'endDate'
-        ).value;
+      if (periodeBulan) {
+        const [yearStr, monthStr] = periodeBulan.split('-');
+        const yearNum = parseInt(yearStr, 10);
+        const monthNum = parseInt(monthStr, 10);
+        const lastDay = new Date(yearNum, monthNum, 0).getDate();
+        startDate = `${yearStr}-${monthStr}-01`;
+        endDate = `${yearStr}-${monthStr}-${String(lastDay).padStart(2, '0')}`;
+        const monthName = INDO_MONTHS[monthNum - 1] || monthStr;
+        displayMonth = `${monthName} ${yearStr}`;
+      }
 
 
-    const filled = [];
+      const filled = [];
 
 
-    PARAMETER_LIST.forEach(param => {
+      PARAMETER_LIST.forEach(param => {
 
         const input =
-            document.getElementById(
-                `param_${param.id}`
-            );
+          document.getElementById(
+            `param_${param.id}`
+          );
 
 
         if (
-            input.value.trim() !== ''
+          input.value.trim() !== ''
         ) {
 
-            filled.push(
-                `${param.name} = ${input.value}`
-            );
+          filled.push(
+            `${param.name} = ${input.value}`
+          );
 
         }
 
-    });
+      });
 
 
-    const message =
+      const message =
 
         `🔎 Query / Filter Data:\n\n` +
 
@@ -2280,299 +3037,634 @@ function getDataPreview() {
 
         `- Kode Cerobong: ${kodeCerobong}\n` +
 
-        `- Periode: ${startDate} s/d ${endDate}\n\n` +
+        `- Periode Bulan: ${displayMonth} (${startDate} s/d ${endDate})\n\n` +
 
         `- Parameter Terisi (${filled.length}):\n` +
 
-        `  ${
-            filled.join('\n  ') ||
-            '(Belum ada angka yang diinput)'
+        `  ${filled.join('\n  ') ||
+        '(Belum ada angka yang diinput)'
         }`;
 
 
-    alert(message);
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| EXPORT CSV
-|--------------------------------------------------------------------------
-*/
-
-function exportToCSV() {
-
-    const records =
-        databaseRecords;
-
-
-    if (
-        records.length === 0
-    ) {
-
-        alert(
-            'Tidak ada data untuk diekspor!'
-        );
-
-        return;
+      alert(message);
 
     }
 
 
-    let csvContent =
-        'data:text/csv;charset=utf-8,';
-
-
     /*
-    -----------------------------------
-    HEADER
-    -----------------------------------
+    |--------------------------------------------------------------------------
+    | EXPORT EXCEL (XLSX) - Riwayat Data
+    |--------------------------------------------------------------------------
     */
 
-    const headers = [
+    function exportToExcel() {
 
+      const records = databaseRecords;
+
+      if (records.length === 0) {
+        alert('Tidak ada data untuk diekspor!');
+        return;
+      }
+
+      /* Build worksheet data */
+      const wsData = [];
+
+      /* Header row */
+      const headers = [
         'No',
-
         'Location',
-
         'Kode Cerobong',
-
+        'Periode Bulan',
         'Tanggal Mulai',
-
         'Tanggal Akhir',
-
-        ...PARAMETER_LIST.map(
-            p =>
-                `"${p.name} (${p.unit})"`
-        ),
-
+        ...PARAMETER_LIST.map(p => `${p.name} (${p.unit})`),
         'Waktu Input'
+      ];
 
-    ];
+      wsData.push(headers);
 
+      /* Data rows */
+      records.forEach((record, index) => {
 
-    csvContent +=
-        headers.join(',') +
-        '\r\n';
+        const row = [
+          index + 1,
+          record.location,
+          record.kodeCerobong,
+          formatPeriodeDisplay(record),
+          record.startDate,
+          record.endDate,
+          ...PARAMETER_LIST.map(p => {
+            const val = record.values && record.values[p.id];
+            return (val !== null && val !== undefined && val !== '') ? Number(val) : '';
+          }),
+          record.timestamp
+        ];
+
+        wsData.push(row);
+
+      });
+
+      /* Create workbook */
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+      /* Column widths */
+      ws['!cols'] = [
+        { wch: 5 },  /* No */
+        { wch: 15 }, /* Location */
+        { wch: 15 }, /* Kode Cerobong */
+        { wch: 18 }, /* Periode Bulan */
+        { wch: 14 }, /* Tanggal Mulai */
+        { wch: 14 }, /* Tanggal Akhir */
+        ...PARAMETER_LIST.map(() => ({ wch: 16 })),
+        { wch: 20 }  /* Waktu Input */
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Riwayat Data');
+
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `KLHK_Monitoring_CEMS_${today}.xlsx`);
+
+    }
 
 
     /*
-    -----------------------------------
-    DATA
-    -----------------------------------
+    |--------------------------------------------------------------------------
+    | CSV ESCAPE (kept for backward compatibility)
+    |--------------------------------------------------------------------------
     */
 
-    records.forEach(
-        (record, index) => {
+    function csvEscape(value) {
 
-            const row = [
-
-                index + 1,
-
-                `"${csvEscape(
-                    record.location
-                )}"`,
-
-                `"${csvEscape(
-                    record.kodeCerobong
-                )}"`,
-
-                `"${record.startDate}"`,
-
-                `"${record.endDate}"`,
-
-                ...PARAMETER_LIST.map(
-                    parameter => {
-
-                        const value =
-                            record.values &&
-                            record.values[
-                                parameter.id
-                            ] !== null &&
-                            record.values[
-                                parameter.id
-                            ] !== undefined
-
-                                ? record.values[
-                                    parameter.id
-                                  ]
-
-                                : '';
-
-                        return value;
-
-                    }
-                ),
-
-                `"${csvEscape(
-                    record.timestamp
-                )}"`
-
-            ];
-
-
-            csvContent +=
-                row.join(',') +
-                '\r\n';
-
-        }
-    );
-
-
-    const encodedUri =
-        encodeURI(csvContent);
-
-
-    const link =
-        document.createElement('a');
-
-
-    link.setAttribute(
-        'href',
-        encodedUri
-    );
-
-
-    const today =
-        new Date()
-            .toISOString()
-            .split('T')[0];
-
-
-    link.setAttribute(
-        'download',
-        `KLHK_Monitoring_CEMS_${today}.csv`
-    );
-
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
-
-}
-
-
-/*
-|--------------------------------------------------------------------------
-| CSV ESCAPE
-|--------------------------------------------------------------------------
-*/
-
-function csvEscape(value) {
-
-    if (
+      if (
         value === null ||
         value === undefined
-    ) {
+      ) {
 
         return '';
 
+      }
+
+
+      return String(value)
+        .replaceAll('"', '""');
+
     }
 
 
-    return String(value)
-        .replaceAll('"', '""');
+    /*
+    |--------------------------------------------------------------------------
+    | BERSIHKAN SEMUA DATA
+    |--------------------------------------------------------------------------
+    |
+    | Untuk saat ini fungsi ini menghapus seluruh
+    | data menggunakan endpoint PHP tambahan.
+    |
+    */
 
-}
+    async function clearAllData() {
 
-
-/*
-|--------------------------------------------------------------------------
-| BERSIHKAN SEMUA DATA
-|--------------------------------------------------------------------------
-|
-| Untuk saat ini fungsi ini menghapus seluruh
-| data menggunakan endpoint PHP tambahan.
-|
-*/
-
-async function clearAllData() {
-
-    if (
+      if (
         !confirm(
-            'PERINGATAN!\n\n' +
-            'Apakah Anda yakin ingin ' +
-            'menghapus SELURUH data monitoring ' +
-            'dari database?\n\n' +
-            'Tindakan ini tidak dapat dibatalkan.'
+          'PERINGATAN!\n\n' +
+          'Apakah Anda yakin ingin ' +
+          'menghapus SELURUH data monitoring ' +
+          'dari database?\n\n' +
+          'Tindakan ini tidak dapat dibatalkan.'
         )
-    ) {
+      ) {
 
         return;
 
-    }
+      }
 
 
-    try {
+      try {
 
         const response =
-            await fetch(
-                'clear.php',
-                {
+          await fetch(
+            'clear.php',
+            {
 
-                    method: 'POST',
+              method: 'POST',
 
-                    headers: {
-                        'Content-Type':
-                            'application/json'
-                    }
+              headers: {
+                'Content-Type':
+                  'application/json'
+              }
 
-                }
-            );
+            }
+          );
 
 
         const result =
-            await response.json();
+          await response.json();
 
 
         if (
-            !response.ok ||
-            !result.success
+          !response.ok ||
+          !result.success
         ) {
 
-            throw new Error(
-                result.message ||
-                'Gagal menghapus seluruh data.'
-            );
+          throw new Error(
+            result.message ||
+            'Gagal menghapus seluruh data.'
+          );
 
         }
 
 
         alert(
-            '✅ Seluruh data monitoring berhasil dihapus.'
+          '✅ Seluruh data monitoring berhasil dihapus.'
         );
 
 
         await renderTableFromDatabase();
 
 
-    } catch (error) {
+      } catch (error) {
 
         console.error(error);
 
 
         alert(
-            '❌ Gagal menghapus seluruh data.\n\n' +
-            error.message
+          '❌ Gagal menghapus seluruh data.\n\n' +
+          error.message
         );
+
+      }
 
     }
 
-}
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHART: Populate Year Dropdown
+    |--------------------------------------------------------------------------
+    */
+
+    function populateChartYearDropdown() {
+
+      const yearSelect = document.getElementById('chartYear');
+      const currentVal = yearSelect.value;
+
+      /* Extract unique years from startDate */
+      const years = new Set();
+
+      databaseRecords.forEach(item => {
+        if (item.startDate) {
+          const year = item.startDate.substring(0, 4);
+          years.add(year);
+        }
+      });
+
+      const sortedYears = Array.from(years).sort().reverse();
+
+      let html = '<option value="">-- Pilih Tahun --</option>';
+      sortedYears.forEach(y => {
+        html += `<option value="${y}" ${y === currentVal ? 'selected' : ''}>${y}</option>`;
+      });
+
+      yearSelect.innerHTML = html;
+
+    }
 
 
-/*
-|--------------------------------------------------------------------------
-| INITIALIZATION
-|--------------------------------------------------------------------------
-*/
+    /*
+    |--------------------------------------------------------------------------
+    | CHART: On Location Change - Populate Cerobong
+    |--------------------------------------------------------------------------
+    */
 
-document.addEventListener(
-    'DOMContentLoaded',
-    async function() {
+    function onChartLocationChange() {
+
+      const loc = document.getElementById('chartLocation').value;
+      const cerobongSelect = document.getElementById('chartCerobong');
+
+      if (!loc) {
+        cerobongSelect.innerHTML = '<option value="">-- Pilih Cerobong --</option>';
+        renderChart();
+        return;
+      }
+
+      /* Find cerobong codes used for this location */
+      const cerobongs = new Set();
+
+      databaseRecords.forEach(item => {
+        if (item.location === loc) {
+          cerobongs.add(item.kodeCerobong);
+        }
+      });
+
+      const sorted = Array.from(cerobongs).sort((a, b) => Number(a) - Number(b));
+
+      let html = '<option value="">-- Pilih Cerobong --</option>';
+      sorted.forEach(c => {
+        html += `<option value="${c}">Cerobong ${c}</option>`;
+      });
+
+      cerobongSelect.innerHTML = html;
+
+      renderChart();
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHART: Render Chart
+    |--------------------------------------------------------------------------
+    */
+
+    const MONTH_NAMES = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
+
+    const CHART_COLORS = [
+      '#2563eb', '#dc2626', '#16a34a', '#ea580c', '#9333ea',
+      '#0891b2', '#ca8a04', '#be185d', '#4f46e5', '#059669',
+      '#d97706', '#7c3aed', '#0284c7', '#e11d48', '#65a30d',
+      '#6d28d9', '#0d9488', '#b91c1c', '#1d4ed8', '#15803d',
+      '#c2410c', '#7e22ce', '#0e7490'
+    ];
+
+
+    function renderChart() {
+
+      const loc = document.getElementById('chartLocation').value;
+      const cerobong = document.getElementById('chartCerobong').value;
+      const year = document.getElementById('chartYear').value;
+
+      const canvas = document.getElementById('gasChart');
+      const emptyDiv = document.getElementById('chartEmpty');
+      const legendInfo = document.getElementById('chartLegendInfo');
+
+      /* Destroy existing chart */
+      if (gasChartInstance) {
+        gasChartInstance.destroy();
+        gasChartInstance = null;
+      }
+
+      if (!loc || !cerobong || !year) {
+        canvas.style.display = 'none';
+        emptyDiv.style.display = 'flex';
+        legendInfo.style.display = 'none';
+        return;
+      }
+
+      /* Filter data for this location, cerobong, year */
+      const filtered = databaseRecords.filter(item =>
+        item.location === loc &&
+        item.kodeCerobong === cerobong &&
+        item.startDate &&
+        item.startDate.substring(0, 4) === year
+      );
+
+      if (filtered.length === 0) {
+        canvas.style.display = 'none';
+        emptyDiv.style.display = 'flex';
+        emptyDiv.textContent =
+          `Tidak ada data untuk ${loc} - Cerobong ${cerobong} tahun ${year}.`;
+        legendInfo.style.display = 'none';
+        return;
+      }
+
+      /* Group by month: for each month, average the parameter values */
+      const monthlyData = {};
+
+      for (let m = 0; m < 12; m++) {
+        monthlyData[m] = { count: 0, sums: {} };
+        PARAMETER_LIST.forEach(p => {
+          monthlyData[m].sums[p.id] = { total: 0, count: 0 };
+        });
+      }
+
+      filtered.forEach(item => {
+        const month = parseInt(item.startDate.substring(5, 7), 10) - 1;
+
+        PARAMETER_LIST.forEach(p => {
+          const val = item.values && item.values[p.id];
+          if (val !== null && val !== undefined && val !== '' && !isNaN(Number(val))) {
+            monthlyData[month].sums[p.id].total += Number(val);
+            monthlyData[month].sums[p.id].count += 1;
+          }
+        });
+
+        monthlyData[month].count += 1;
+      });
+
+      /* Build datasets - only include parameters that have at least one value */
+      const datasets = [];
+
+      PARAMETER_LIST.forEach((param, idx) => {
+
+        const data = [];
+        let hasData = false;
+
+        for (let m = 0; m < 12; m++) {
+          const info = monthlyData[m].sums[param.id];
+          if (info.count > 0) {
+            data.push(parseFloat((info.total / info.count).toFixed(2)));
+            hasData = true;
+          } else {
+            data.push(null);
+          }
+        }
+
+        if (hasData) {
+          datasets.push({
+            label: `${param.name} (${param.unit})`,
+            data: data,
+            borderColor: CHART_COLORS[idx % CHART_COLORS.length],
+            backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] + '20',
+            borderWidth: 2,
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            fill: false,
+            spanGaps: true
+          });
+        }
+
+      });
+
+      if (datasets.length === 0) {
+        canvas.style.display = 'none';
+        emptyDiv.style.display = 'flex';
+        emptyDiv.textContent = 'Tidak ada data parameter yang terisi untuk periode ini.';
+        legendInfo.style.display = 'none';
+        return;
+      }
+
+      /* Render chart */
+      emptyDiv.style.display = 'none';
+      canvas.style.display = 'block';
+      legendInfo.style.display = 'block';
+
+      const ctx = canvas.getContext('2d');
+
+      gasChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: MONTH_NAMES,
+          datasets: datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          plugins: {
+            title: {
+              display: true,
+              text: `Parameter Gas - ${loc} / Cerobong ${cerobong} / Tahun ${year}`,
+              font: { size: 15, weight: 'bold' },
+              color: '#1e293b',
+              padding: { bottom: 16 }
+            },
+            legend: {
+              position: 'bottom',
+              labels: {
+                usePointStyle: true,
+                padding: 12,
+                font: { size: 11 }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.9)',
+              titleFont: { size: 13 },
+              bodyFont: { size: 12 },
+              padding: 12,
+              cornerRadius: 8,
+              callbacks: {
+                label: function (context) {
+                  return `${context.dataset.label}: ${context.parsed.y ?? '-'}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Bulan',
+                font: { weight: 'bold' }
+              },
+              grid: {
+                color: '#e2e8f0'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Nilai Parameter',
+                font: { weight: 'bold' }
+              },
+              beginAtZero: true,
+              grid: {
+                color: '#e2e8f0'
+              }
+            }
+          }
+        }
+      });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | EXPORT CHART DATA TO EXCEL
+    |--------------------------------------------------------------------------
+    */
+
+    function exportChartDataToExcel() {
+
+      const loc = document.getElementById('chartLocation').value;
+      const cerobong = document.getElementById('chartCerobong').value;
+      const year = document.getElementById('chartYear').value;
+
+      if (!loc || !cerobong || !year) {
+        alert('Pilih Location, Kode Cerobong, dan Tahun terlebih dahulu.');
+        return;
+      }
+
+      /* Filter data */
+      const filtered = databaseRecords.filter(item =>
+        item.location === loc &&
+        item.kodeCerobong === cerobong &&
+        item.startDate &&
+        item.startDate.substring(0, 4) === year
+      );
+
+      if (filtered.length === 0) {
+        alert('Tidak ada data untuk diekspor.');
+        return;
+      }
+
+      /* Compute monthly averages */
+      const monthlyData = {};
+
+      for (let m = 0; m < 12; m++) {
+        monthlyData[m] = {};
+        PARAMETER_LIST.forEach(p => {
+          monthlyData[m][p.id] = { total: 0, count: 0 };
+        });
+      }
+
+      filtered.forEach(item => {
+        const month = parseInt(item.startDate.substring(5, 7), 10) - 1;
+        PARAMETER_LIST.forEach(p => {
+          const val = item.values && item.values[p.id];
+          if (val !== null && val !== undefined && val !== '' && !isNaN(Number(val))) {
+            monthlyData[month][p.id].total += Number(val);
+            monthlyData[month][p.id].count += 1;
+          }
+        });
+      });
+
+      /* Build worksheet */
+      const wsData = [];
+
+      /* Title rows */
+      wsData.push([`Grafik Parameter Gas - ${loc} / Cerobong ${cerobong} / Tahun ${year}`]);
+      wsData.push([`Rata-rata nilai parameter per bulan`]);
+      wsData.push([]);
+
+      /* Header */
+      const header = ['Bulan', ...PARAMETER_LIST.map(p => `${p.name} (${p.unit})`)];
+      wsData.push(header);
+
+      /* Monthly data rows */
+      const MONTH_FULL = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      ];
+
+      for (let m = 0; m < 12; m++) {
+        const row = [MONTH_FULL[m]];
+        PARAMETER_LIST.forEach(p => {
+          const info = monthlyData[m][p.id];
+          if (info.count > 0) {
+            row.push(parseFloat((info.total / info.count).toFixed(2)));
+          } else {
+            row.push('');
+          }
+        });
+        wsData.push(row);
+      }
+
+      /* Create workbook */
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+      /* Merge title cell */
+      ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: PARAMETER_LIST.length } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: PARAMETER_LIST.length } }
+      ];
+
+      /* Column widths */
+      ws['!cols'] = [
+        { wch: 14 },
+        ...PARAMETER_LIST.map(() => ({ wch: 16 }))
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Grafik Bulanan');
+
+      /* Also add raw data sheet */
+      const rawWsData = [];
+
+      rawWsData.push([
+        'No', 'Location', 'Kode Cerobong', 'Periode Bulan', 'Tanggal Mulai', 'Tanggal Akhir',
+        ...PARAMETER_LIST.map(p => `${p.name} (${p.unit})`),
+        'Waktu Input'
+      ]);
+
+      filtered.forEach((record, index) => {
+        const row = [
+          index + 1,
+          record.location,
+          record.kodeCerobong,
+          formatPeriodeDisplay(record),
+          record.startDate,
+          record.endDate,
+          ...PARAMETER_LIST.map(p => {
+            const val = record.values && record.values[p.id];
+            return (val !== null && val !== undefined && val !== '') ? Number(val) : '';
+          }),
+          record.timestamp
+        ];
+        rawWsData.push(row);
+      });
+
+      const ws2 = XLSX.utils.aoa_to_sheet(rawWsData);
+      ws2['!cols'] = [
+        { wch: 5 }, { wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 14 }, { wch: 14 },
+        ...PARAMETER_LIST.map(() => ({ wch: 16 })),
+        { wch: 20 }
+      ];
+
+      XLSX.utils.book_append_sheet(wb, ws2, 'Data Mentah');
+
+      const today = new Date().toISOString().split('T')[0];
+      XLSX.writeFile(wb, `KLHK_Grafik_${loc}_Cerobong${cerobong}_${year}_${today}.xlsx`);
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | INITIALIZATION
+    |--------------------------------------------------------------------------
+    */
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      async function () {
 
         renderParameterInputs();
 
@@ -2580,10 +3672,11 @@ document.addEventListener(
 
         await renderTableFromDatabase();
 
-    }
-);
+      }
+    );
 
-</script>
+  </script>
 
 </body>
+
 </html>
