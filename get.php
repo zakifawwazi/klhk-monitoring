@@ -105,6 +105,7 @@ while ($row = $result->fetch_assoc()) {
         "id"            => $row["id"],
         "location"      => $row["location"],
         "kodeCerobong"  => $row["kode_cerobong"],
+        "inputDate"     => $row["tanggal_mulai"],  // single date (new mode)
         "startDate"     => $row["tanggal_mulai"],
         "endDate"       => $row["tanggal_akhir"],
         "periodeBulan"  => $periodeBulan,

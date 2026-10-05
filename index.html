@@ -10,6 +10,10 @@
 
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <!-- Hammer.js (diperlukan untuk zoom plugin) -->
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
+  <!-- chartjs-plugin-zoom -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
   <!-- SheetJS (xlsx) CDN for proper Excel export -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -46,14 +50,10 @@
       margin: 0 auto;
     }
 
-    /* =========================
-       TOP BAR
-    ========================= */
-
     .top-bar {
       background: linear-gradient(90deg, #0b5394 0%, #1e40af 100%);
       color: white;
-      padding: 12px 20px;
+      padding: 10px 20px;
       border-radius: 8px 8px 0 0;
       display: flex;
       justify-content: space-between;
@@ -69,21 +69,24 @@
       align-items: center;
     }
 
-    .breadcrumbs span {
-      opacity: 0.7;
-    }
+    .breadcrumbs span { opacity: 0.7; }
 
     .user-info {
       font-weight: 600;
       letter-spacing: 0.3px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    /* =========================
-       CARD
-    ========================= */
+    .user-info img.logo-indocement {
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 3px;
+      background: white;
+      padding: 2px 4px;
+    }
 
     .card {
       background: var(--card-bg);
@@ -124,10 +127,6 @@
       border: 1px solid #bae6fd;
     }
 
-    /* =========================
-       FORM
-    ========================= */
-
     .form-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -162,29 +161,10 @@
       transition: all 0.2s;
     }
 
-    select:focus,
-    input:focus {
+    select:focus, input:focus {
       outline: none;
       border-color: var(--primary-color);
       box-shadow: 0 0 0 3px rgba(11, 83, 148, 0.15);
-    }
-
-    .date-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .date-row input[type="date"] {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .date-row span {
-      font-size: 13px;
-      color: #64748b;
-      font-weight: 600;
-      white-space: nowrap;
     }
 
     .field-hint {
@@ -204,10 +184,6 @@
       font-size: 13px;
       border: 1px solid #bfdbfe;
     }
-
-    /* =========================
-       PARAMETER
-    ========================= */
 
     .param-container {
       margin-top: 10px;
@@ -267,7 +243,7 @@
 
     .param-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
       gap: 12px;
       background-color: #f8fafc;
       padding: 18px;
@@ -282,12 +258,11 @@
       border: 1px solid #e2e8f0;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       transition: all 0.2s;
     }
 
-    .param-card:hover,
-    .param-card:focus-within {
+    .param-card:hover, .param-card:focus-within {
       border-color: #3b82f6;
       box-shadow: 0 2px 6px rgba(59, 130, 246, 0.1);
     }
@@ -296,37 +271,42 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 6px;
     }
 
     .param-name {
       font-size: 13px;
       font-weight: 700;
       color: #1e293b;
+      flex-shrink: 0;
     }
 
-    .param-unit {
-      font-size: 11px;
-      color: #64748b;
-      background: #f1f5f9;
-      padding: 2px 6px;
-      border-radius: 4px;
+    /* *** PERBAIKAN: Satuan seragam dan rapi *** */
+    .param-unit-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex: 1;
     }
 
     .param-unit-select {
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       color: #0b5394;
       background: #f8fafc;
       border: 1px solid #cbd5e1;
       border-radius: 4px;
-      padding: 2px 6px;
+      padding: 2px 4px;
       cursor: pointer;
       outline: none;
       transition: all 0.2s;
+      width: 78px;
+      min-width: 78px;
+      max-width: 78px;
+      text-align: center;
     }
 
-    .param-unit-select:hover,
-    .param-unit-select:focus {
+    .param-unit-select:hover, .param-unit-select:focus {
       border-color: #0b5394;
       background: #e0f2fe;
     }
@@ -349,16 +329,7 @@
       background: #f0f9ff;
     }
 
-    .tag-unit {
-      font-size: 10px;
-      color: #64748b;
-      font-weight: 500;
-      margin-left: 2px;
-    }
-
-    .param-input-wrap {
-      position: relative;
-    }
+    .param-input-wrap { position: relative; }
 
     .param-input-wrap input {
       font-size: 13.5px;
@@ -373,7 +344,8 @@
     .param-input-wrap input::placeholder {
       font-weight: normal;
       color: #94a3b8;
-      font-size: 12px;
+      font-size: 11px;
+      text-align: right;
     }
 
     .param-input-wrap input.has-value {
@@ -387,9 +359,11 @@
       background-color: #fef2f2;
     }
 
-    /* =========================
-       BUTTONS
-    ========================= */
+    .param-max-hint {
+      font-size: 10.5px;
+      color: #94a3b8;
+      text-align: right;
+    }
 
     .actions-row {
       margin-top: 24px;
@@ -413,38 +387,12 @@
       gap: 8px;
     }
 
-    .btn-primary {
-      background-color: var(--primary-color);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background-color: var(--primary-hover);
-    }
-
-    .btn-secondary {
-      background-color: #f1f5f9;
-      color: #475569;
-      border: 1px solid #cbd5e1;
-    }
-
-    .btn-secondary:hover {
-      background-color: #e2e8f0;
-      color: #0f172a;
-    }
-
-    .btn-success {
-      background-color: var(--success-color);
-      color: white;
-    }
-
-    .btn-success:hover {
-      background-color: #15803d;
-    }
-
-    /* =========================
-       DATA TABLE
-    ========================= */
+    .btn-primary { background-color: var(--primary-color); color: white; }
+    .btn-primary:hover { background-color: var(--primary-hover); }
+    .btn-secondary { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+    .btn-secondary:hover { background-color: #e2e8f0; color: #0f172a; }
+    .btn-success { background-color: var(--success-color); color: white; }
+    .btn-success:hover { background-color: #15803d; }
 
     .data-section {
       background: white;
@@ -500,9 +448,7 @@
       vertical-align: middle;
     }
 
-    tr:hover {
-      background-color: #f8fafc;
-    }
+    tr:hover { background-color: #f8fafc; }
 
     .param-badge-container {
       display: flex;
@@ -523,9 +469,7 @@
       color: #334155;
     }
 
-    .tag-val strong {
-      color: #0b5394;
-    }
+    .tag-val strong { color: #0b5394; }
 
     .empty-state {
       text-align: center;
@@ -544,13 +488,7 @@
       border-radius: 4px;
     }
 
-    .delete-btn:hover {
-      background: #fee2e2;
-    }
-
-    /* =========================
-       SEARCH & FILTER BAR
-    ========================= */
+    .delete-btn:hover { background: #fee2e2; }
 
     .filter-bar {
       display: flex;
@@ -606,29 +544,13 @@
       gap: 6px;
     }
 
-    .btn-filter-apply {
-      background: var(--primary-color);
-      color: white;
-    }
-
-    .btn-filter-apply:hover {
-      background: var(--primary-hover);
-    }
-
     .btn-filter-reset {
       background: #e2e8f0;
       color: #475569;
       border: 1px solid #cbd5e1;
     }
 
-    .btn-filter-reset:hover {
-      background: #cbd5e1;
-      color: #1e293b;
-    }
-
-    /* =========================
-       PAGINATION
-    ========================= */
+    .btn-filter-reset:hover { background: #cbd5e1; color: #1e293b; }
 
     .pagination-container {
       display: flex;
@@ -641,20 +563,10 @@
       gap: 10px;
     }
 
-    .pagination-info {
-      font-size: 13px;
-      color: #64748b;
-    }
+    .pagination-info { font-size: 13px; color: #64748b; }
+    .pagination-info strong { color: #1e293b; }
 
-    .pagination-info strong {
-      color: #1e293b;
-    }
-
-    .pagination-controls {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-    }
+    .pagination-controls { display: flex; gap: 4px; align-items: center; }
 
     .pagination-controls button {
       padding: 6px 12px;
@@ -682,14 +594,7 @@
       border-color: var(--primary-color);
     }
 
-    .pagination-controls button:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-    }
-
-    /* =========================
-       CHART SECTION
-    ========================= */
+    .pagination-controls button:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .chart-section {
       background: white;
@@ -750,21 +655,74 @@
       background: white;
     }
 
-    .chart-canvas-container {
-      position: relative;
-      width: 100%;
-      min-height: 400px;
+    .semester-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .semester-tab {
+      padding: 7px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 2px solid #cbd5e1;
+      background: #f8fafc;
+      color: #475569;
+      transition: all 0.2s;
+    }
+
+    .semester-tab.active {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: white;
+    }
+
+    .semester-tab:hover:not(.active) {
+      background: #e2e8f0;
+      border-color: #94a3b8;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+      gap: 20px;
+    }
+
+    .single-chart-card {
       background: #fafbfc;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
-      padding: 16px;
+      padding: 14px;
+      position: relative;
+    }
+
+    .single-chart-card .chart-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .single-chart-card .max-badge {
+      font-size: 10.5px;
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
     }
 
     .chart-empty {
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 300px;
+      min-height: 200px;
       color: #94a3b8;
       font-size: 14px;
       text-align: center;
@@ -776,10 +734,6 @@
       color: #64748b;
       text-align: center;
     }
-
-    /* =========================
-       MODAL
-    ========================= */
 
     .modal-overlay {
       display: none;
@@ -822,10 +776,6 @@
       color: #64748b;
     }
 
-    /* =========================
-       LOADING
-    ========================= */
-
     .loading {
       text-align: center;
       padding: 20px;
@@ -833,43 +783,13 @@
       display: none;
     }
 
-    /* =========================
-       RESPONSIVE
-    ========================= */
-
     @media (max-width: 700px) {
-
-      body {
-        padding: 10px;
-      }
-
-      .top-bar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-
-      .date-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .date-row span {
-        text-align: center;
-      }
-
-      .filter-bar {
-        flex-direction: column;
-      }
-
-      .filter-bar .filter-field {
-        min-width: 100%;
-      }
-
-      .chart-filter-bar {
-        flex-direction: column;
-      }
-
+      body { padding: 10px; }
+      .top-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .filter-bar { flex-direction: column; }
+      .filter-bar .filter-field { min-width: 100%; }
+      .chart-filter-bar { flex-direction: column; }
+      .charts-grid { grid-template-columns: 1fr; }
     }
   </style>
 
@@ -879,245 +799,102 @@
 
   <div class="container">
 
-    <!-- =========================
-       TOP BAR
-  ========================= -->
-
     <div class="top-bar">
-
       <div class="breadcrumbs">
-
         Production, Operation, Quality &amp; Inventory Inquiry
-
         <span>&gt;</span>
-
         Continuous Emissions Monitoring System (CEMS)
-
         <span>&gt;</span>
-
         <strong>KLHK Monitoring</strong>
-
       </div>
-
       <div class="user-info">
-        🏢 PT INDOCEMENT TUNGGAL PRAKARSA
+        <img src="indocement_logo.jpg" alt="Logo Indocement" class="logo-indocement">
+        PT INDOCEMENT TUNGGAL PRAKARSA
       </div>
-
     </div>
 
-    <!-- =========================
-       FORM
-  ========================= -->
-
     <div class="card">
-
       <div class="title-header">
-
-        <h2>📊 KLHK Monitoring</h2>
-
-        <span class="badge-cems">
-          Penginputan Data Parameter (0 - 3500)
-        </span>
-
+        <h2>Environment Monitoring and Measurement</h2>
+        <span class="badge-cems" id="badgeCems">Penginputan Data Parameter (sesuai baku mutu)</span>
       </div>
 
-
       <form id="monitoringForm">
-
-        <!-- LOCATION / CEROBONG / PERIODE -->
-
         <div class="form-grid">
 
           <div class="form-field">
-
-            <label for="location">
-              Location :
-            </label>
-
+            <label for="location">Location :</label>
             <select id="location" name="location" required>
-
-              <option value="" disabled selected>
-                -- Pilih Location --
-              </option>
-
-              <option value="Citeureup">
-                Citeureup
-              </option>
-
-              <option value="Cirebon">
-                Cirebon
-              </option>
-
-              <option value="Tarjun">
-                Tarjun
-              </option>
-
-              <option value="Grobogan">
-                Grobogan
-              </option>
-
-              <option value="Maros">
-                Maros
-              </option>
-
+              <option value="" disabled selected>-- Pilih Location --</option>
+              <option value="Citeureup">Citeureup</option>
+              <option value="Cirebon">Cirebon</option>
+              <option value="Tarjun">Tarjun</option>
+              <option value="Grobogan">Grobogan</option>
+              <option value="Maros">Maros</option>
             </select>
-
           </div>
 
-
           <div class="form-field">
-
-            <label for="kodeCerobong">
-              Kode Cerobong :
-            </label>
-
+            <label for="kodeCerobong">Kode Cerobong :</label>
             <input type="text" id="kodeCerobong" name="kodeCerobong" list="cerobongHistoryList"
-              placeholder="Ketik kode cerobong (contoh: 1, 2, KILN-1)..." autocomplete="off" required>
-
+              placeholder="Ketik kode cerobong" autocomplete="off" required>
             <datalist id="cerobongHistoryList"></datalist>
-
-            <small class="field-hint">
-              💡 Ketik langsung atau pilih dari riwayat cerobong
-            </small>
-
+            <small class="field-hint">Ketik langsung atau pilih dari riwayat cerobong</small>
           </div>
 
-
           <div class="form-field">
-
-            <label for="startDate">
-              Periode Tanggal :
-            </label>
-
-            <div class="date-row">
-
-              <input type="date" id="startDate" name="startDate" required>
-
-              <span>s/d</span>
-
-              <input type="date" id="endDate" name="endDate" required>
-
-            </div>
-
+            <label for="inputDate">Tanggal Penginputan :</label>
+            <input type="date" id="inputDate" name="inputDate" required>
+            <small class="field-hint">Pilih tanggal pengukuran</small>
           </div>
 
         </div>
 
-
-        <!-- =========================
-           PARAMETER
-      ========================= -->
-
         <div class="param-container">
-
           <div class="param-header">
-
             <div class="param-header-left">
-
-              <h3>
-                🧪 Input Nilai Parameter Monitoring
-              </h3>
-
-              <span class="note">
-                Rentang nilai yang diperbolehkan:
-                <strong>0 sampai 3500</strong>
-              </span>
-
+              <h3>Input Nilai Parameter Monitoring</h3>
+              <span class="note">Nilai maksimum per parameter sesuai baku mutu yang berlaku</span>
             </div>
-
-
             <div class="param-tools">
-
               <select class="btn-small-select" id="batchUnitSelect"
                 title="Pilih satuan untuk diterapkan ke seluruh parameter"
                 onchange="setAllUnits(this.value); this.selectedIndex = 0;">
-                <option value="" disabled selected>⚡ Ubah Semua Satuan</option>
+                <option value="" disabled selected>Ubah Semua Satuan</option>
                 <option value="mg/Nm³">Set Semua ke mg/Nm³</option>
                 <option value="ng/Nm³">Set Semua ke ng/Nm³</option>
                 <option value="%">Set Semua ke %</option>
               </select>
-
-              <button type="button" class="btn-small" onclick="setAllValues(0)">
-                Set Semua Nilai ke 0
-              </button>
-
-              <button type="button" class="btn-small" onclick="clearAllInputs()">
-                Kosongkan Semua
-              </button>
-
+              <button type="button" class="btn-small" onclick="setAllValues(0)">Set Semua Nilai ke 0</button>
+              <button type="button" class="btn-small" onclick="clearAllInputs()">Kosongkan Semua</button>
             </div>
-
           </div>
 
-
           <div class="param-grid" id="parameterGrid"></div>
-
         </div>
-
-
-        <!-- =========================
-           ACTION
-      ========================= -->
 
         <div class="actions-row">
-
-          <button type="submit" class="btn btn-primary" id="btnSubmit">
-            💾 Simpan Data
-          </button>
-
-          <button type="button" class="btn btn-secondary" onclick="getDataPreview()">
-            🔍 Get Data
-          </button>
-
-          <button type="button" class="btn btn-secondary" onclick="resetForm()">
-            🔄 Reset Form
-          </button>
-
+          <button type="submit" class="btn btn-primary" id="btnSubmit">&#128190; Simpan Data</button>
+          <button type="button" class="btn btn-secondary" onclick="getDataPreview()">&#128269; Get Data</button>
+          <button type="button" class="btn btn-secondary" onclick="resetForm()">&#128260; Reset Form</button>
         </div>
-
       </form>
-
     </div>
 
-    <!-- =========================
-       HISTORY
-  ========================= -->
-
     <div class="data-section">
-
       <div class="data-header">
-
-        <h3>
-          📋 Riwayat Data Penginputan
-        </h3>
-
+        <h3>&#128203; Riwayat Data Penginputan</h3>
         <div style="display:flex;gap:8px;">
-
-          <button class="btn btn-success" onclick="exportToExcel()">
-            📥 Export ke Excel (.xlsx)
-          </button>
-
-          <button class="btn btn-secondary" onclick="clearAllData()">
-            🗑 Bersihkan Semua
-          </button>
-
+          <button class="btn btn-success" onclick="exportToExcel()">&#128229; Export ke Excel (.xlsx)</button>
+          <button class="btn btn-secondary" onclick="clearAllData()">&#128465; Bersihkan Semua</button>
         </div>
-
       </div>
 
-
-      <!-- =========================
-         SEARCH & FILTER BAR
-    ========================= -->
-
       <div class="filter-bar" id="filterBar">
-
         <div class="filter-field">
-          <label for="filterSearch">🔍 Pencarian</label>
-          <input type="text" id="filterSearch" placeholder="Cari location, cerobong, tanggal..."
-            oninput="applyFilters()">
+          <label for="filterSearch">&#128269; Pencarian</label>
+          <input type="text" id="filterSearch" placeholder="Cari location, cerobong, tanggal..." oninput="applyFilters()">
         </div>
-
         <div class="filter-field">
           <label for="filterLocation">Location</label>
           <select id="filterLocation" onchange="applyFilters()">
@@ -1129,136 +906,52 @@
             <option value="Maros">Maros</option>
           </select>
         </div>
-
         <div class="filter-field">
           <label for="filterCerobong">Kode Cerobong</label>
           <select id="filterCerobong" onchange="applyFilters()">
             <option value="">-- Semua Cerobong --</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-            <option value="11">11</option>
-            <option value="12">12</option>
-            <option value="14">14</option>
-            <option value="16">16</option>
-            <option value="17">17</option>
-            <option value="18">18</option>
           </select>
         </div>
-
         <div class="filter-actions">
-
-          <button class="btn-filter btn-filter-reset" onclick="resetFilters()">
-            🔄 Reset
-          </button>
-
+          <button class="btn-filter btn-filter-reset" onclick="resetFilters()">&#128260; Reset</button>
         </div>
-
       </div>
 
-
-      <div id="loadingMessage" class="loading">
-        ⏳ Mengambil data dari database...
-      </div>
-
+      <div id="loadingMessage" class="loading">&#9203; Mengambil data dari database...</div>
 
       <div class="table-container">
-
         <table id="dataTable">
-
           <thead>
-
             <tr>
-
-              <th style="width:45px;">
-                No
-              </th>
-
-              <th>
-                Location
-              </th>
-
-              <th>
-                Kode Cerobong
-              </th>
-
-              <th>
-                Periode Tanggal
-              </th>
-
-              <th>
-                Nilai Parameter (Terisi)
-              </th>
-
-              <th>
-                Waktu Input
-              </th>
-
-              <th style="width:120px;">
-                Aksi
-              </th>
-
+              <th style="width:45px;">No</th>
+              <th>Location</th>
+              <th>Kode Cerobong</th>
+              <th>Tanggal Penginputan</th>
+              <th>Nilai Parameter (Terisi)</th>
+              <th>Waktu Input</th>
+              <th style="width:120px;">Aksi</th>
             </tr>
-
           </thead>
-
           <tbody id="tableBody"></tbody>
-
         </table>
-
-
         <div id="emptyMessage" class="empty-state">
-          Belum ada data monitoring yang disimpan.
-          Silakan isi form di atas dan klik
-          <strong>Simpan Data</strong>.
+          Belum ada data monitoring yang disimpan. Silakan isi form di atas dan klik <strong>Simpan Data</strong>.
         </div>
-
       </div>
-
-
-      <!-- =========================
-         PAGINATION
-    ========================= -->
 
       <div class="pagination-container" id="paginationContainer" style="display:none;">
-
         <div class="pagination-info" id="paginationInfo"></div>
-
         <div class="pagination-controls" id="paginationControls"></div>
-
       </div>
-
     </div>
 
-
-    <!-- =========================
-       CHART SECTION
-  ========================= -->
-
     <div class="chart-section" id="chartSection">
-
       <div class="chart-header">
-
-        <h3>
-          📈 Grafik Parameter per Lokasi & Cerobong (Bulanan)
-        </h3>
-
-        <button class="btn btn-success" onclick="exportChartDataToExcel()">
-          📥 Export Grafik ke Excel
-        </button>
-
+        <h3>&#128200; Grafik Parameter per Lokasi &amp; Cerobong (Semesteran)</h3>
+        <button class="btn btn-success" onclick="exportChartDataToExcel()">&#128229; Export Grafik ke Excel</button>
       </div>
 
-
       <div class="chart-filter-bar">
-
         <div class="filter-field">
           <label for="chartLocation">Location</label>
           <select id="chartLocation" onchange="onChartLocationChange()">
@@ -1270,312 +963,111 @@
             <option value="Maros">Maros</option>
           </select>
         </div>
-
         <div class="filter-field">
           <label for="chartCerobong">Kode Cerobong</label>
-          <select id="chartCerobong" onchange="renderChart()">
+          <select id="chartCerobong" onchange="renderCharts()">
             <option value="">-- Pilih Cerobong --</option>
           </select>
         </div>
-
         <div class="filter-field">
           <label for="chartYear">Tahun</label>
-          <select id="chartYear" onchange="renderChart()">
+          <select id="chartYear" onchange="renderCharts()">
             <option value="">-- Pilih Tahun --</option>
           </select>
         </div>
-
       </div>
 
-
-      <div class="chart-canvas-container" id="chartCanvasContainer">
-
-        <div class="chart-empty" id="chartEmpty">
-          Pilih Location, Kode Cerobong, dan Tahun untuk menampilkan grafik parameter bulanan.
-        </div>
-
-        <canvas id="gasChart" style="display:none;"></canvas>
-
+      <div class="semester-tabs" id="semesterTabs" style="display:none;">
+        <button class="semester-tab active" id="tabS1" onclick="setSemester(1)">
+          &#128197; Semester 1 (Januari - Juni)
+        </button>
+        <button class="semester-tab" id="tabS2" onclick="setSemester(2)">
+          &#128197; Semester 2 (Juli - Desember)
+        </button>
       </div>
+
+      <div id="chartZoomControls" style="display:none; justify-content:flex-end; align-items:center; gap:8px; margin-bottom:10px;">
+        <span style="font-size:12px; color:#64748b;">&#128432; Scroll = zoom &nbsp;|&nbsp; Klik+Geser = geser grafik</span>
+        <button onclick="resetAllZoom()"
+          style="background:#0b5394; color:#fff; border:none; border-radius:6px; padding:5px 14px; font-size:12px; cursor:pointer; font-weight:600;">
+          &#8634; Reset Semua Zoom
+        </button>
+      </div>
+
+      <div class="chart-empty" id="chartEmpty">
+        Pilih Location, Kode Cerobong, dan Tahun untuk menampilkan grafik parameter semesteran.
+      </div>
+
+      <div class="charts-grid" id="chartsGrid" style="display:none;"></div>
 
       <div class="chart-legend-info" id="chartLegendInfo" style="display:none;">
-        Grafik menampilkan rata-rata nilai parameter gas per bulan. Klik legenda untuk menyembunyikan/menampilkan
-        parameter tertentu.
+        Grafik menampilkan rata-rata nilai parameter per bulan dalam semester yang dipilih. Garis merah putus-putus menunjukkan batas baku mutu. Gunakan scroll mouse untuk zoom dan klik-geser untuk menggeser grafik.
       </div>
-
     </div>
 
   </div>
 
-  <!-- =========================
-     MODAL DETAIL
-========================= -->
-
   <div class="modal-overlay" id="detailModal">
-
     <div class="modal-content">
-
       <div class="modal-header">
-
-        <h3 id="modalTitle">
-          Detail Data Monitoring
-        </h3>
-
-        <button class="modal-close" onclick="closeModal()">
-          &times;
-        </button>
-
+        <h3 id="modalTitle">Detail Data Monitoring</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
-
       <div id="modalBody"></div>
-
     </div>
-
   </div>
 
   <script>
 
-    /*
-    |--------------------------------------------------------------------------
-    | KONFIGURASI API
-    |--------------------------------------------------------------------------
-    |
-    | Karena index.html dan PHP berada dalam folder yang sama:
-    |
-    | index.html
-    | save.php
-    | get.php
-    | delete.php
-    |
-    | maka cukup menggunakan nama file.
-    |
-    */
-
-    const API = {
-
-      save: 'save.php',
-
-      get: 'get.php',
-
-      delete: 'delete.php'
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DAFTAR PARAMETER
-    |--------------------------------------------------------------------------
-    |
-    | Mengikuti daftar parameter pada HTML asli.
-    |
-    */
+    const API = { save: 'save.php', get: 'get.php', delete: 'delete.php' };
 
     const PARAMETER_LIST = [
-
-      {
-        id: "dust",
-        name: "Dust",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "hci",
-        name: "HCI",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "hf",
-        name: "HF",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "so2",
-        name: "SO2",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "no2",
-        name: "NO2",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "co",
-        name: "CO",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "noc_as_ch4",
-        name: "NOC as CH4",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "zn",
-        name: "Zn",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "hg",
-        name: "Hg",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "cd",
-        name: "Cd",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "tl",
-        name: "Tl",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "sb",
-        name: "Sb",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "arsenic",
-        name: "As",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "cr",
-        name: "Cr",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "co_metal",
-        name: "Co",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "cu",
-        name: "Cu",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "pb",
-        name: "Pb",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "mn",
-        name: "Mn",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "ni",
-        name: "Ni",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "v",
-        name: "V",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "be",
-        name: "Be",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "se",
-        name: "Se",
-        unit: "mg/Nm³"
-      },
-
-      {
-        id: "pcdd_pcdf",
-        name: "PCDD/PCDF",
-        unit: "ng/Nm³"
-      }
-
+      { id: "dust",       name: "Dust",        unit: "mg/Nm\u00b3", maxVal: 130   },
+      { id: "hci",        name: "HCI",         unit: "mg/Nm\u00b3", maxVal: 40    },
+      { id: "hf",         name: "HF",          unit: "mg/Nm\u00b3", maxVal: 4     },
+      { id: "so2",        name: "SO2",         unit: "mg/Nm\u00b3", maxVal: 1300  },
+      { id: "no2",        name: "NO2",         unit: "mg/Nm\u00b3", maxVal: 1600  },
+      { id: "co",         name: "CO",          unit: "mg/Nm\u00b3", maxVal: 6000  },
+      { id: "noc_as_ch4", name: "NOC as CH4",  unit: "mg/Nm\u00b3", maxVal: 200   },
+      { id: "zn",         name: "Zn",          unit: "mg/Nm\u00b3", maxVal: null  },
+      { id: "hg",         name: "Hg",          unit: "mg/Nm\u00b3", maxVal: 0.4   },
+      { id: "cd",         name: "Cd",          unit: "mg/Nm\u00b3", maxVal: 0.4   },
+      { id: "tl",         name: "Tl",          unit: "mg/Nm\u00b3", maxVal: 0.4   },
+      { id: "sb",         name: "Sb",          unit: "mg/Nm\u00b3", maxVal: 1     },
+      { id: "arsenic",    name: "As",          unit: "mg/Nm\u00b3", maxVal: 2     },
+      { id: "cr",         name: "Cr",          unit: "mg/Nm\u00b3", maxVal: 2     },
+      { id: "co_metal",   name: "Co",          unit: "mg/Nm\u00b3", maxVal: 1     },
+      { id: "cu",         name: "Cu",          unit: "mg/Nm\u00b3", maxVal: 1     },
+      { id: "pb",         name: "Pb",          unit: "mg/Nm\u00b3", maxVal: 10    },
+      { id: "mn",         name: "Mn",          unit: "mg/Nm\u00b3", maxVal: 10    },
+      { id: "ni",         name: "Ni",          unit: "mg/Nm\u00b3", maxVal: 1     },
+      { id: "v",          name: "V",           unit: "mg/Nm\u00b3", maxVal: 1     },
+      { id: "be",         name: "Be",          unit: "mg/Nm\u00b3", maxVal: 0.2   },
+      { id: "se",         name: "Se",          unit: "mg/Nm\u00b3", maxVal: 2     },
+      { id: "pcdd_pcdf",  name: "PCDD/PCDF",   unit: "ng/Nm\u00b3", maxVal: 0.2   }
     ];
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | DATA SEMENTARA DARI MYSQL
-    |--------------------------------------------------------------------------
-    |
-    | Digunakan oleh Detail dan Export.
-    |
-    */
-
     let databaseRecords = [];
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PAGINATION & FILTER STATE
-    |--------------------------------------------------------------------------
-    */
-
     let filteredRecords = [];
     let currentPage = 1;
     const ITEMS_PER_PAGE = 5;
-
-    /** Chart.js instance */
-    let gasChartInstance = null;
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RIWAYAT KODE CEROBONG (STORAGE & AUTOCOMPLETE)
-    |--------------------------------------------------------------------------
-    */
+    let chartInstances = {};
+    let currentSemester = 1;
 
     const CEROBONG_STORAGE_KEY = 'klhk_cerobong_history';
-    const DEFAULT_CEROBONGS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '14', '16', '17', '18'];
+    const DEFAULT_CEROBONGS = ['1','2','3','4','5','6','7','8','9','10','11','12','14','16','17','18'];
 
     function getCerobongHistory() {
       let saved = [];
-      try {
-        const stored = localStorage.getItem(CEROBONG_STORAGE_KEY);
-        if (stored) {
-          saved = JSON.parse(stored);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-
+      try { const s = localStorage.getItem(CEROBONG_STORAGE_KEY); if (s) saved = JSON.parse(s); } catch(e){}
       const set = new Set([...saved]);
-
       if (databaseRecords && databaseRecords.length > 0) {
-        databaseRecords.forEach(r => {
-          if (r.kodeCerobong) set.add(String(r.kodeCerobong).trim());
-        });
+        databaseRecords.forEach(r => { if (r.kodeCerobong) set.add(String(r.kodeCerobong).trim()); });
       }
-
-      if (set.size === 0) {
-        DEFAULT_CEROBONGS.forEach(c => set.add(c));
-      }
-
-      return Array.from(set).filter(Boolean).sort((a, b) => {
-        const numA = Number(a);
-        const numB = Number(b);
-        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+      if (set.size === 0) DEFAULT_CEROBONGS.forEach(c => set.add(c));
+      return Array.from(set).filter(Boolean).sort((a,b) => {
+        const na=Number(a), nb=Number(b);
+        if (!isNaN(na) && !isNaN(nb)) return na-nb;
         return a.localeCompare(b);
       });
     }
@@ -1584,18 +1076,11 @@
       if (!code) return;
       const clean = String(code).trim();
       if (!clean) return;
-
       let history = [];
-      try {
-        const stored = localStorage.getItem(CEROBONG_STORAGE_KEY);
-        if (stored) history = JSON.parse(stored);
-      } catch (e) { }
-
+      try { const s = localStorage.getItem(CEROBONG_STORAGE_KEY); if (s) history = JSON.parse(s); } catch(e){}
       if (!history.includes(clean)) {
         history.push(clean);
-        try {
-          localStorage.setItem(CEROBONG_STORAGE_KEY, JSON.stringify(history));
-        } catch (e) { }
+        try { localStorage.setItem(CEROBONG_STORAGE_KEY, JSON.stringify(history)); } catch(e){}
       }
       updateCerobongDatalist();
     }
@@ -1604,8 +1089,7 @@
       const list = document.getElementById('cerobongHistoryList');
       if (!list) return;
       const history = getCerobongHistory();
-      list.innerHTML = history.map(item => `<option value="${escapeHtml(item)}"></option>`).join('');
-
+      list.innerHTML = history.map(item => '<option value="' + escapeHtml(item) + '"></option>').join('');
       updateFilterCerobongDropdown(history);
     }
 
@@ -1613,2067 +1097,769 @@
       const filterSelect = document.getElementById('filterCerobong');
       if (!filterSelect) return;
       const currentVal = filterSelect.value;
-
       const set = new Set([...history]);
       if (databaseRecords && databaseRecords.length > 0) {
-        databaseRecords.forEach(r => {
-          if (r.kodeCerobong) set.add(String(r.kodeCerobong).trim());
-        });
+        databaseRecords.forEach(r => { if (r.kodeCerobong) set.add(String(r.kodeCerobong).trim()); });
       }
-      const sorted = Array.from(set).filter(Boolean).sort((a, b) => {
-        const numA = Number(a);
-        const numB = Number(b);
-        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+      const sorted = Array.from(set).filter(Boolean).sort((a,b) => {
+        const na=Number(a), nb=Number(b);
+        if (!isNaN(na) && !isNaN(nb)) return na-nb;
         return a.localeCompare(b);
       });
-
       let html = '<option value="">-- Semua Cerobong --</option>';
       sorted.forEach(c => {
-        html += `<option value="${escapeHtml(c)}" ${c === currentVal ? 'selected' : ''}>Cerobong ${escapeHtml(c)}</option>`;
+        html += '<option value="' + escapeHtml(c) + '"' + (c===currentVal?' selected':'') + '>Cerobong ' + escapeHtml(c) + '</option>';
       });
       filterSelect.innerHTML = html;
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | RENDER INPUT PARAMETER
-    |--------------------------------------------------------------------------
-    */
-
     function renderParameterInputs() {
-
-      const grid =
-        document.getElementById('parameterGrid');
-
+      const grid = document.getElementById('parameterGrid');
       grid.innerHTML = '';
-
-
       PARAMETER_LIST.forEach(param => {
-
-        const card =
-          document.createElement('div');
-
+        const card = document.createElement('div');
         card.className = 'param-card';
-
-
-        card.innerHTML = `
-
-            <div class="param-card-header">
-
-                <span class="param-name">
-                    ${param.name}
-                </span>
-
-                <select
-                    id="unit_${param.id}"
-                    data-id="${param.id}"
-                    class="param-unit-select"
-                    title="Pilih satuan untuk ${param.name}"
-                >
-                    <option value="mg/Nm³" ${param.unit === 'mg/Nm³' ? 'selected' : ''}>mg/Nm³</option>
-                    <option value="ng/Nm³" ${param.unit === 'ng/Nm³' ? 'selected' : ''}>ng/Nm³</option>
-                    <option value="%" ${param.unit === '%' ? 'selected' : ''}>%</option>
-                </select>
-
-            </div>
-
-            <div class="param-input-wrap">
-
-                <input
-                    type="number"
-                    id="param_${param.id}"
-                    data-id="${param.id}"
-                    data-name="${param.name}"
-                    min="0"
-                    max="3500"
-                    step="any"
-                    placeholder="0 - 3500"
-                    class="param-number-input"
-                    oninput="validateInput(this)"
-                >
-
-            </div>
-
-        `;
-
-
+        const maxHint = param.maxVal !== null ? 'Maks: ' + param.maxVal : 'Tidak ada batas';
+        const placeholderText = param.maxVal !== null ? '0 \u2013 ' + param.maxVal : 'contoh: 0,05';
+        card.innerHTML =
+          '<div class="param-card-header">' +
+            '<span class="param-name">' + param.name + '</span>' +
+            '<div class="param-unit-wrap">' +
+              '<select id="unit_' + param.id + '" data-id="' + param.id + '" class="param-unit-select" title="Pilih satuan untuk ' + param.name + '">' +
+                '<option value="mg/Nm\u00b3"' + (param.unit==='mg/Nm\u00b3'?' selected':'') + '>mg/Nm\u00b3</option>' +
+                '<option value="ng/Nm\u00b3"' + (param.unit==='ng/Nm\u00b3'?' selected':'') + '>ng/Nm\u00b3</option>' +
+                '<option value="%"' + (param.unit==='%'?' selected':'') + '>%</option>' +
+              '</select>' +
+            '</div>' +
+          '</div>' +
+          '<div class="param-input-wrap">' +
+            '<input type="text" inputmode="decimal" id="param_' + param.id + '" data-id="' + param.id + '" data-name="' + param.name + '" data-max="' + (param.maxVal !== null ? param.maxVal : '') + '" placeholder="' + placeholderText + '" class="param-number-input" autocomplete="off" oninput="handleParamInput(this)">' +
+          '</div>' +
+          '<div class="param-max-hint">' + maxHint + '</div>';
         grid.appendChild(card);
-
       });
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SET SEMUA SATUAN PARAMETER
-    |--------------------------------------------------------------------------
-    */
 
     function setAllUnits(unitVal) {
       if (!unitVal) return;
       PARAMETER_LIST.forEach(param => {
-        const selectElem = document.getElementById(`unit_${param.id}`);
-        if (selectElem) {
-          selectElem.value = unitVal;
-        }
+        const sel = document.getElementById('unit_' + param.id);
+        if (sel) sel.value = unitVal;
       });
     }
 
+    function parseDecimal(val) {
+      if (val === null || val === undefined) return null;
+      if (typeof val === 'number') return isNaN(val) ? null : val;
+      const s = String(val).trim().replace(',', '.');
+      if (s === '') return null;
+      const num = parseFloat(s);
+      return isNaN(num) ? null : num;
+    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | VALIDASI INPUT
-    |--------------------------------------------------------------------------
-    */
+    function getParamMax(paramId) {
+      const param = PARAMETER_LIST.find(p => p.id === paramId);
+      return param ? param.maxVal : null;
+    }
+
+    function handleParamInput(input) {
+      let val = input.value.replace(/[^0-9.,]/g, '');
+      const firstSep = val.search(/[.,]/);
+      if (firstSep !== -1) {
+        const before = val.substring(0, firstSep + 1);
+        const after = val.substring(firstSep + 1).replace(/[.,]/g, '');
+        val = before + after;
+      }
+      if (input.value !== val) input.value = val;
+      validateInput(input);
+    }
 
     function validateInput(input) {
-
-      const val =
-        parseFloat(input.value);
-
-
-      if (input.value === '') {
-
-        input.classList.remove(
-          'has-value',
-          'invalid'
-        );
-
-        return;
-      }
-
-
-      if (
-        isNaN(val) ||
-        val < 0 ||
-        val > 3500
-      ) {
-
+      const clean = input.value.trim().replace(',', '.');
+      if (clean === '') { input.classList.remove('has-value', 'invalid'); return; }
+      const val = parseFloat(clean);
+      const paramId = input.dataset.id;
+      const maxVal = getParamMax(paramId);
+      let isInvalid = isNaN(val) || val < 0;
+      if (!isInvalid && maxVal !== null) isInvalid = val > maxVal;
+      if (isInvalid) {
         input.classList.add('invalid');
-
         input.classList.remove('has-value');
-
       } else {
-
         input.classList.remove('invalid');
-
         input.classList.add('has-value');
-
       }
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SET SEMUA NILAI
-    |--------------------------------------------------------------------------
-    */
 
     function setAllValues(value) {
-
-      const inputs =
-        document.querySelectorAll(
-          '.param-number-input'
-        );
-
-
-      inputs.forEach(input => {
-
-        input.value = value;
-
+      document.querySelectorAll('.param-number-input').forEach(input => {
+        input.value = String(value).replace('.', ',');
         validateInput(input);
-
       });
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLEAR PARAMETER
-    |--------------------------------------------------------------------------
-    */
 
     function clearAllInputs() {
-
-      const inputs =
-        document.querySelectorAll(
-          '.param-number-input'
-        );
-
-
-      inputs.forEach(input => {
-
+      document.querySelectorAll('.param-number-input').forEach(input => {
         input.value = '';
-
         validateInput(input);
-
       });
-
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | INDONESIAN MONTH NAMES & HELPER
-    |--------------------------------------------------------------------------
-    */
-
     const INDO_MONTHS = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      'Januari','Februari','Maret','April','Mei','Juni',
+      'Juli','Agustus','September','Oktober','November','Desember'
     ];
 
     function formatIndoDate(dateStr) {
       if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr || '-';
-      const [y, m, d] = dateStr.split('-');
-      const mIdx = parseInt(m, 10) - 1;
-      const monthName = INDO_MONTHS[mIdx] || m;
-      return `${parseInt(d, 10)} ${monthName} ${y}`;
+      const [y,m,d] = dateStr.split('-');
+      const mIdx = parseInt(m,10) - 1;
+      return parseInt(d,10) + ' ' + (INDO_MONTHS[mIdx]||m) + ' ' + y;
     }
 
-    function formatPeriodeDisplay(item) {
+    function formatTanggalDisplay(item) {
       if (!item) return '-';
+      if (item.inputDate) return formatIndoDate(item.inputDate);
       if (item.startDate && item.endDate) {
-        if (item.startDate === item.endDate) {
-          return formatIndoDate(item.startDate);
-        }
-        return `${formatIndoDate(item.startDate)} s/d ${formatIndoDate(item.endDate)}`;
+        if (item.startDate === item.endDate) return formatIndoDate(item.startDate);
+        return formatIndoDate(item.startDate) + ' s/d ' + formatIndoDate(item.endDate);
       }
       if (item.startDate) return formatIndoDate(item.startDate);
       if (item.periodeBulan) return item.periodeBulan;
       return '-';
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | DEFAULT DATE (HARI INI)
-    |--------------------------------------------------------------------------
-    */
-
     function setDefaultDates() {
       const today = new Date().toISOString().split('T')[0];
-      const sElem = document.getElementById('startDate');
-      const eElem = document.getElementById('endDate');
-      if (sElem) sElem.value = today;
-      if (eElem) eElem.value = today;
+      const d = document.getElementById('inputDate');
+      if (d) d.value = today;
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RESET FORM
-    |--------------------------------------------------------------------------
-    */
 
     function resetForm() {
-
-      document.getElementById(
-        'monitoringForm'
-      ).reset();
-
+      document.getElementById('monitoringForm').reset();
       clearAllInputs();
-
       setDefaultDates();
-
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | SUBMIT DATA KE PHP
-    |--------------------------------------------------------------------------
-    */
-
-    document
-      .getElementById('monitoringForm')
-      .addEventListener(
-        'submit',
-        async function (e) {
-
-          e.preventDefault();
-
-
-          const location =
-            document.getElementById(
-              'location'
-            ).value;
-
-
-          const kodeCerobong =
-            document.getElementById(
-              'kodeCerobong'
-            ).value.trim();
-
-
-          const startDate =
-            document.getElementById(
-              'startDate'
-            ).value;
-
-          const endDate =
-            document.getElementById(
-              'endDate'
-            ).value;
-
-
-          /*
-          -----------------------------------
-          VALIDASI TANGGAL & INPUT UTAMA
-          -----------------------------------
-          */
-
-          if (!location) {
-            alert('⚠️ Silakan pilih Location terlebih dahulu.');
-            return;
-          }
-
-          if (!kodeCerobong) {
-            alert('⚠️ Silakan ketik atau pilih Kode Cerobong terlebih dahulu.');
-            return;
-          }
-
-          if (!startDate || !endDate) {
-            alert('⚠️ Silakan pilih tanggal mulai dan tanggal akhir terlebih dahulu.');
-            return;
-          }
-
-          if (startDate > endDate) {
-            alert('⚠️ Tanggal akhir tidak boleh lebih kecil dari tanggal mulai.');
-            return;
-          }
-
-          const periodeBulan = startDate.substring(0, 7);
-
-          // Simpan kode cerobong ke riwayat autocomplete
-          saveCerobongToHistory(kodeCerobong);
-
-
-          /*
-          -----------------------------------
-          AMBIL NILAI & SATUAN PARAMETER
-          -----------------------------------
-          */
-
-          const values = {};
-          const units = {};
-
-          let hasInvalid = false;
-
-          let filledCount = 0;
-
-
-          PARAMETER_LIST.forEach(param => {
-
-            const input =
-              document.getElementById(
-                `param_${param.id}`
-              );
-
-            const unitSelect =
-              document.getElementById(
-                `unit_${param.id}`
-              );
-
-            units[param.id] =
-              unitSelect ? unitSelect.value : param.unit;
-
-
-            const valStr =
-              input.value.trim();
-
-
-            if (valStr !== '') {
-
-              const numVal =
-                parseFloat(valStr);
-
-
-              if (
-                isNaN(numVal) ||
-                numVal < 0 ||
-                numVal > 3500
-              ) {
-
-                hasInvalid = true;
-
-                input.classList.add(
-                  'invalid'
-                );
-
-              } else {
-
-                values[param.id] =
-                  numVal;
-
-                filledCount++;
-
-              }
-
-            } else {
-
-              values[param.id] = null;
-
-            }
-
-          });
-
-
-          /*
-          -----------------------------------
-          CEK VALIDASI
-          -----------------------------------
-          */
-
-          if (hasInvalid) {
-
-            alert(
-              '⚠️ Terdapat nilai parameter ' +
-              'yang tidak valid.\n\n' +
-              'Pastikan semua angka berada ' +
-              'dalam rentang 0 sampai 3500.'
-            );
-
-            return;
-
-          }
-
-
-          if (filledCount === 0) {
-
-            if (
-              !confirm(
-                'Anda belum menginput nilai ' +
-                'parameter apapun.\n\n' +
-                'Apakah tetap ingin menyimpan ' +
-                'data ini?'
-              )
-            ) {
-
-              return;
-
-            }
-
-          }
-
-
-          /*
-          -----------------------------------
-          OBJECT DATA
-          -----------------------------------
-          */
-
-          const data = {
-
-            location: location,
-
-            kodeCerobong: kodeCerobong,
-
-            periodeBulan: periodeBulan,
-
-            startDate: startDate,
-
-            endDate: endDate,
-
-            values: values,
-
-            units: units
-
-          };
-
-
-          /*
-          -----------------------------------
-          DISABLE BUTTON
-          -----------------------------------
-          */
-
-          const button =
-            document.getElementById(
-              'btnSubmit'
-            );
-
-
-          button.disabled = true;
-
-          button.innerHTML =
-            '⏳ Menyimpan...';
-
-
-          try {
-
-            /*
-            --------------------------------
-            FETCH SAVE.PHP
-            --------------------------------
-            */
-
-            const response =
-              await fetch(
-                API.save,
-                {
-
-                  method: 'POST',
-
-                  headers: {
-                    'Content-Type':
-                      'application/json'
-                  },
-
-                  body:
-                    JSON.stringify(data)
-
-                }
-              );
-
-
-            const result =
-              await response.json();
-
-
-            if (
-              !response.ok ||
-              !result.success
-            ) {
-
-              throw new Error(
-                result.message ||
-                'Gagal menyimpan data.'
-              );
-
-            }
-
-
-            /*
-            --------------------------------
-            BERHASIL
-            --------------------------------
-            */
-
-            alert(
-              '✅ Data monitoring KLHK ' +
-              'berhasil disimpan!\n\n' +
-              'ID Monitoring: ' +
-              result.monitoring_id
-            );
-
-
-            resetForm();
-
-
-            /*
-            Refresh tabel
-            */
-
-            await renderTableFromDatabase();
-
-
-          } catch (error) {
-
-            console.error(error);
-
-
-            alert(
-              '❌ Gagal menyimpan data ke database.\n\n' +
-              error.message
-            );
-
-
-          } finally {
-
-            button.disabled = false;
-
-            button.innerHTML =
-              '💾 Simpan Data';
-
-          }
-
+    document.getElementById('monitoringForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const location = document.getElementById('location').value;
+      const kodeCerobong = document.getElementById('kodeCerobong').value.trim();
+      const inputDate = document.getElementById('inputDate').value;
+
+      if (!location) { alert('Silakan pilih Location terlebih dahulu.'); return; }
+      if (!kodeCerobong) { alert('Silakan ketik atau pilih Kode Cerobong terlebih dahulu.'); return; }
+      if (!inputDate) { alert('Silakan pilih Tanggal Penginputan terlebih dahulu.'); return; }
+
+      const periodeBulan = inputDate.substring(0,7);
+      saveCerobongToHistory(kodeCerobong);
+
+      const values = {}, units = {};
+      let hasInvalid = false, filledCount = 0;
+
+      PARAMETER_LIST.forEach(param => {
+        const input = document.getElementById('param_' + param.id);
+        const unitSel = document.getElementById('unit_' + param.id);
+        units[param.id] = unitSel ? unitSel.value : param.unit;
+        const valStr = input.value.trim().replace(',', '.');
+        if (valStr !== '') {
+          const numVal = parseFloat(valStr);
+          const maxVal = param.maxVal;
+          let inv = isNaN(numVal) || numVal < 0;
+          if (!inv && maxVal !== null) inv = numVal > maxVal;
+          if (inv) { hasInvalid = true; input.classList.add('invalid'); }
+          else { values[param.id] = numVal; filledCount++; }
+        } else {
+          values[param.id] = null;
         }
-      );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | FILTER / SEARCH LOGIC
-    |--------------------------------------------------------------------------
-    */
-
-    function applyFilters() {
-
-      const searchTerm =
-        document.getElementById('filterSearch')
-          .value.toLowerCase().trim();
-
-      const filterLocation =
-        document.getElementById('filterLocation').value;
-
-      const filterCerobong =
-        document.getElementById('filterCerobong').value;
-
-
-      filteredRecords = databaseRecords.filter(item => {
-
-        /* Filter by location dropdown */
-        if (
-          filterLocation &&
-          item.location !== filterLocation
-        ) {
-          return false;
-        }
-
-        /* Filter by cerobong dropdown */
-        if (
-          filterCerobong &&
-          item.kodeCerobong !== filterCerobong
-        ) {
-          return false;
-        }
-
-        /* Search keyword */
-        if (searchTerm) {
-
-          const searchTarget = [
-            item.location,
-            'Cerobong ' + item.kodeCerobong,
-            item.kodeCerobong,
-            item.periodeBulan || '',
-            formatPeriodeDisplay(item),
-            item.startDate,
-            item.endDate,
-            item.timestamp
-          ].join(' ').toLowerCase();
-
-          if (!searchTarget.includes(searchTerm)) {
-            return false;
-          }
-
-        }
-
-        return true;
-
       });
 
+      if (hasInvalid) {
+        alert('Terdapat nilai parameter yang tidak valid.\n\nPastikan semua angka berada dalam rentang yang diizinkan sesuai baku mutu.');
+        return;
+      }
+      if (filledCount === 0) {
+        if (!confirm('Anda belum menginput nilai parameter apapun.\n\nApakah tetap ingin menyimpan data ini?')) return;
+      }
+
+      const data = {
+        location, kodeCerobong,
+        periodeBulan,
+        startDate: inputDate,
+        endDate: inputDate,
+        inputDate,
+        values, units
+      };
+
+      const button = document.getElementById('btnSubmit');
+      button.disabled = true;
+      button.innerHTML = 'Menyimpan...';
+
+      try {
+        const response = await fetch(API.save, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || 'Gagal menyimpan data.');
+        alert('Data monitoring KLHK berhasil disimpan!\n\nID Monitoring: ' + result.monitoring_id);
+        resetForm();
+        await renderTableFromDatabase();
+      } catch(error) {
+        console.error(error);
+        alert('Gagal menyimpan data ke database.\n\n' + error.message);
+      } finally {
+        button.disabled = false;
+        button.innerHTML = '&#128190; Simpan Data';
+      }
+    });
+
+    function applyFilters() {
+      const searchTerm = document.getElementById('filterSearch').value.toLowerCase().trim();
+      const filterLocation = document.getElementById('filterLocation').value;
+      const filterCerobong = document.getElementById('filterCerobong').value;
+
+      filteredRecords = databaseRecords.filter(item => {
+        if (filterLocation && item.location !== filterLocation) return false;
+        if (filterCerobong && item.kodeCerobong !== filterCerobong) return false;
+        if (searchTerm) {
+          const target = [
+            item.location, 'Cerobong ' + item.kodeCerobong, item.kodeCerobong,
+            item.inputDate||'', item.startDate||'', item.periodeBulan||'',
+            formatTanggalDisplay(item), item.timestamp
+          ].join(' ').toLowerCase();
+          if (!target.includes(searchTerm)) return false;
+        }
+        return true;
+      });
       currentPage = 1;
       renderFilteredTable();
-
     }
 
-
     function resetFilters() {
-
       document.getElementById('filterSearch').value = '';
       document.getElementById('filterLocation').value = '';
       document.getElementById('filterCerobong').value = '';
-
       applyFilters();
-
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | RENDER FILTERED TABLE WITH PAGINATION
-    |--------------------------------------------------------------------------
-    */
-
     function renderFilteredTable() {
-
-      const tbody =
-        document.getElementById('tableBody');
-
-      const emptyMessage =
-        document.getElementById('emptyMessage');
-
-      const paginationContainer =
-        document.getElementById('paginationContainer');
-
-
+      const tbody = document.getElementById('tableBody');
+      const emptyMessage = document.getElementById('emptyMessage');
+      const paginationContainer = document.getElementById('paginationContainer');
       tbody.innerHTML = '';
 
-
       if (filteredRecords.length === 0) {
-
         emptyMessage.style.display = 'block';
         paginationContainer.style.display = 'none';
         return;
-
       }
-
-
       emptyMessage.style.display = 'none';
 
-
-      /* Calculate pagination */
       const totalItems = filteredRecords.length;
       const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
-      if (currentPage > totalPages) {
-        currentPage = totalPages;
-      }
+      if (currentPage > totalPages) currentPage = totalPages;
 
       const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
       const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
       const pageItems = filteredRecords.slice(startIndex, endIndex);
 
-
-      /* Render rows */
       pageItems.forEach((item, localIndex) => {
-
         const globalIndex = startIndex + localIndex;
-
-        /* Find the real index in databaseRecords for viewDetail */
         const realIndex = databaseRecords.indexOf(item);
+        const tr = document.createElement('tr');
 
-        const tr =
-          document.createElement('tr');
+        const filledParams = Object.keys(item.values || {})
+          .filter(key => item.values[key] !== null && item.values[key] !== '')
+          .map(key => {
+            const parameter = PARAMETER_LIST.find(p => p.id === key);
+            const name = parameter ? parameter.name : key;
+            const unit = (item.units && item.units[key]) || (parameter && parameter.unit) || 'mg/Nm\u00b3';
+            const displayVal = String(item.values[key]).replace('.', ',');
+            return '<span class="tag-val">' + name + ': <strong>' + displayVal + '</strong> <span class="tag-unit">' + escapeHtml(unit) + '</span></span>';
+          });
 
-
-        const filledParams =
-          Object.keys(item.values || {})
-            .filter(
-              key =>
-                item.values[key] !== null &&
-                item.values[key] !== ''
-            )
-            .map(key => {
-
-              const parameter =
-                PARAMETER_LIST.find(
-                  p => p.id === key
-                );
-
-              const name =
-                parameter
-                  ? parameter.name
-                  : key;
-
-              return `
-                        <span class="tag-val">
-                            ${name}:
-                            <strong>
-                                ${item.values[key]}
-                            </strong>
-                        </span>
-                    `;
-
-            });
-
-
-        tr.innerHTML = `
-
-            <td>
-                ${globalIndex + 1}
-            </td>
-
-            <td>
-                <strong>
-                    ${escapeHtml(item.location)}
-                </strong>
-            </td>
-
-            <td>
-                Cerobong
-                ${escapeHtml(item.kodeCerobong)}
-            </td>
-
-            <td>
-                <span class="badge-periode">
-                    ${formatPeriodeDisplay(item)}
-                </span>
-                <div style="font-size:11px;color:#64748b;margin-top:3px;">
-                    ${item.startDate} s/d ${item.endDate}
-                </div>
-            </td>
-
-            <td>
-                <div class="param-badge-container">
-                    ${filledParams.length > 0
-            ? filledParams.join('')
-            : `<span style="color:#94a3b8;">
-                            Tidak ada nilai yang diinput
-                           </span>`
-          }
-                </div>
-            </td>
-
-            <td
-                style="color:#64748b;font-size:12px;"
-            >
-                ${item.timestamp}
-            </td>
-
-            <td>
-                <button
-                    class="btn-small"
-                    style="padding:3px 6px;"
-                    onclick="viewDetail(${realIndex})"
-                >
-                    Detail
-                </button>
-
-                <button
-                    class="delete-btn"
-                    onclick="deleteRecord(${item.id})"
-                >
-                    Hapus
-                </button>
-            </td>
-
-        `;
-
+        tr.innerHTML =
+          '<td>' + (globalIndex+1) + '</td>' +
+          '<td><strong>' + escapeHtml(item.location) + '</strong></td>' +
+          '<td>Cerobong ' + escapeHtml(item.kodeCerobong) + '</td>' +
+          '<td><span class="badge-periode">' + formatTanggalDisplay(item) + '</span></td>' +
+          '<td><div class="param-badge-container">' + (filledParams.length > 0 ? filledParams.join('') : '<span style="color:#94a3b8;">Tidak ada nilai yang diinput</span>') + '</div></td>' +
+          '<td style="color:#64748b;font-size:12px;">' + item.timestamp + '</td>' +
+          '<td><button class="btn-small" style="padding:3px 6px;" onclick="viewDetail(' + realIndex + ')">Detail</button> <button class="delete-btn" onclick="deleteRecord(' + item.id + ')">Hapus</button></td>';
 
         tbody.appendChild(tr);
-
       });
 
-
-      /* Render pagination */
       renderPagination(totalItems, totalPages);
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | RENDER PAGINATION
-    |--------------------------------------------------------------------------
-    */
 
     function renderPagination(totalItems, totalPages) {
-
-      const container =
-        document.getElementById('paginationContainer');
-
-      const info =
-        document.getElementById('paginationInfo');
-
-      const controls =
-        document.getElementById('paginationControls');
-
-
-      if (totalPages <= 1) {
-
-        container.style.display = 'flex';
-
-        const startItem = 1;
-        const endItem = totalItems;
-
-        info.innerHTML =
-          `Menampilkan <strong>${startItem}-${endItem}</strong> dari <strong>${totalItems}</strong> data`;
-
-        controls.innerHTML = '';
-        return;
-
-      }
-
+      const container = document.getElementById('paginationContainer');
+      const info = document.getElementById('paginationInfo');
+      const controls = document.getElementById('paginationControls');
       container.style.display = 'flex';
+      const startItem = (currentPage-1)*ITEMS_PER_PAGE+1;
+      const endItem = Math.min(currentPage*ITEMS_PER_PAGE, totalItems);
+      info.innerHTML = 'Menampilkan <strong>' + startItem + '-' + endItem + '</strong> dari <strong>' + totalItems + '</strong> data' + (totalPages>1?' (Halaman '+currentPage+' dari '+totalPages+')':'');
+      if (totalPages <= 1) { controls.innerHTML=''; return; }
 
-
-      const startItem = (currentPage - 1) * ITEMS_PER_PAGE + 1;
-      const endItem = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
-
-      info.innerHTML =
-        `Menampilkan <strong>${startItem}-${endItem}</strong> dari <strong>${totalItems}</strong> data (Halaman ${currentPage} dari ${totalPages})`;
-
-
-      let controlsHTML = '';
-
-      /* Prev button */
-      controlsHTML += `
-        <button
-            onclick="goToPage(${currentPage - 1})"
-            ${currentPage === 1 ? 'disabled' : ''}
-        >
-            ‹ Prev
-        </button>
-    `;
-
-      /* Page buttons */
-      const maxVisiblePages = 5;
-      let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-      if (endPage - startPage < maxVisiblePages - 1) {
-        startPage = Math.max(1, endPage - maxVisiblePages + 1);
-      }
-
-      if (startPage > 1) {
-        controlsHTML += `<button onclick="goToPage(1)">1</button>`;
-        if (startPage > 2) {
-          controlsHTML += `<button disabled>...</button>`;
-        }
-      }
-
-      for (let i = startPage; i <= endPage; i++) {
-        controlsHTML += `
-            <button
-                onclick="goToPage(${i})"
-                class="${i === currentPage ? 'active' : ''}"
-            >
-                ${i}
-            </button>
-        `;
-      }
-
-      if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-          controlsHTML += `<button disabled>...</button>`;
-        }
-        controlsHTML += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
-      }
-
-      /* Next button */
-      controlsHTML += `
-        <button
-            onclick="goToPage(${currentPage + 1})"
-            ${currentPage === totalPages ? 'disabled' : ''}
-        >
-            Next ›
-        </button>
-    `;
-
-
-      controls.innerHTML = controlsHTML;
-
+      let html = '<button onclick="goToPage(' + (currentPage-1) + ')"' + (currentPage===1?' disabled':'') + '>&#8249; Prev</button>';
+      const maxVis=5;
+      let sp=Math.max(1,currentPage-Math.floor(maxVis/2));
+      let ep=Math.min(totalPages, sp+maxVis-1);
+      if (ep-sp<maxVis-1) sp=Math.max(1, ep-maxVis+1);
+      if (sp>1) { html+='<button onclick="goToPage(1)">1</button>'; if(sp>2) html+='<button disabled>...</button>'; }
+      for (let i=sp;i<=ep;i++) html+='<button onclick="goToPage('+i+')"'+(i===currentPage?' class="active"':'')+'>'+i+'</button>';
+      if (ep<totalPages) { if(ep<totalPages-1) html+='<button disabled>...</button>'; html+='<button onclick="goToPage('+totalPages+')">'+totalPages+'</button>'; }
+      html+='<button onclick="goToPage('+(currentPage+1)+')"'+(currentPage===totalPages?' disabled':'')+'>Next &#8250;</button>';
+      controls.innerHTML = html;
     }
-
 
     function goToPage(page) {
-
       const totalPages = Math.ceil(filteredRecords.length / ITEMS_PER_PAGE);
-
-      if (page < 1 || page > totalPages) return;
-
+      if (page<1||page>totalPages) return;
       currentPage = page;
       renderFilteredTable();
-
-      /* Scroll to table */
-      document.getElementById('dataTable')
-        .scrollIntoView({ behavior: 'smooth', block: 'start' });
-
+      document.getElementById('dataTable').scrollIntoView({ behavior:'smooth', block:'start' });
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | GET DATA DARI MYSQL
-    |--------------------------------------------------------------------------
-    */
 
     async function renderTableFromDatabase() {
-
-      const loading =
-        document.getElementById(
-          'loadingMessage'
-        );
-
-
-      const emptyMessage =
-        document.getElementById(
-          'emptyMessage'
-        );
-
-
+      const loading = document.getElementById('loadingMessage');
+      const emptyMessage = document.getElementById('emptyMessage');
       loading.style.display = 'block';
-
-
       try {
-
-        const response =
-          await fetch(API.get);
-
-
-        const result =
-          await response.json();
-
-
-        if (
-          !response.ok ||
-          !result.success
-        ) {
-
-          throw new Error(
-            result.message ||
-            'Gagal mengambil data.'
-          );
-
-        }
-
-
-        databaseRecords =
-          result.data || [];
-
-
-        /* Apply filters and render */
+        const response = await fetch(API.get);
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message||'Gagal mengambil data.');
+        databaseRecords = result.data || [];
         applyFilters();
-
-        /* Update chart dropdowns */
         populateChartYearDropdown();
-
-
-      } catch (error) {
-
+        updateCerobongDatalist();
+      } catch(error) {
         console.error(error);
-
-
-        emptyMessage.style.display =
-          'block';
-
-
-        emptyMessage.innerHTML = `
-
-            ❌ Gagal mengambil data dari database.
-
-            <br><br>
-
-            <small>
-                ${escapeHtml(
-          error.message
-        )}
-            </small>
-
-        `;
-
-
+        emptyMessage.style.display = 'block';
+        emptyMessage.innerHTML = 'Gagal mengambil data dari database.<br><br><small>' + escapeHtml(error.message) + '</small>';
       } finally {
-
         loading.style.display = 'none';
-
       }
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ESCAPE HTML
-    |--------------------------------------------------------------------------
-    */
 
     function escapeHtml(value) {
-
-      if (value === null ||
-        value === undefined) {
-
-        return '';
-
-      }
-
-
-      return String(value)
-
-        .replaceAll('&', '&amp;')
-
-        .replaceAll('<', '&lt;')
-
-        .replaceAll('>', '&gt;')
-
-        .replaceAll('"', '&quot;')
-
-        .replaceAll("'", '&#039;');
-
+      if (value===null||value===undefined) return '';
+      return String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DETAIL DATA
-    |--------------------------------------------------------------------------
-    */
 
     function viewDetail(index) {
-
-      const item =
-        databaseRecords[index];
-
-
-      if (!item) {
-
-        return;
-
-      }
-
-
-      document.getElementById(
-        'modalTitle'
-      ).innerText =
-
-        `Detail Data: ${item.location}
-        (Cerobong ${item.kodeCerobong})`;
-
-
-      let html = `
-
-        <div
-            style="
-                margin-bottom:15px;
-                font-size:13.5px;
-                line-height:1.6;
-            "
-        >
-
-            <div>
-                <strong>Location:</strong>
-                ${escapeHtml(item.location)}
-            </div>
-
-            <div>
-                <strong>Kode Cerobong:</strong>
-                ${escapeHtml(item.kodeCerobong)}
-            </div>
-
-            <div>
-                <strong>Periode Bulan:</strong>
-                <span style="color:#0b5394;font-weight:700;">
-                    ${formatPeriodeDisplay(item)}
-                </span>
-                <span style="color:#64748b;font-size:12px;">
-                    (${item.startDate} s/d ${item.endDate})
-                </span>
-            </div>
-
-            <div>
-                <strong>Waktu Input:</strong>
-                ${item.timestamp}
-            </div>
-
-        </div>
-
-
-        <h4
-            style="
-                margin-bottom:10px;
-                font-size:14px;
-                border-bottom:1px solid #e2e8f0;
-                padding-bottom:4px;
-            "
-        >
-            Daftar Nilai Parameter (0 - 3500)
-        </h4>
-
-
-        <div
-            style="
-                display:grid;
-                grid-template-columns:
-                repeat(auto-fill,
-                minmax(180px,1fr));
-                gap:8px;
-            "
-        >
-
-    `;
-
+      const item = databaseRecords[index];
+      if (!item) return;
+      document.getElementById('modalTitle').innerText = 'Detail Data: ' + item.location + ' (Cerobong ' + item.kodeCerobong + ')';
+      let html = '<div style="margin-bottom:15px;font-size:13.5px;line-height:1.6;">' +
+        '<div><strong>Location:</strong> ' + escapeHtml(item.location) + '</div>' +
+        '<div><strong>Kode Cerobong:</strong> ' + escapeHtml(item.kodeCerobong) + '</div>' +
+        '<div><strong>Tanggal Penginputan:</strong> <span style="color:#0b5394;font-weight:700;">' + formatTanggalDisplay(item) + '</span></div>' +
+        '<div><strong>Waktu Input:</strong> ' + item.timestamp + '</div>' +
+        '</div>' +
+        '<h4 style="margin-bottom:10px;font-size:14px;border-bottom:1px solid #e2e8f0;padding-bottom:4px;">Daftar Nilai Parameter</h4>' +
+        '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;">';
 
       PARAMETER_LIST.forEach(param => {
-
-        const val =
-
-          item.values &&
-            item.values[param.id] !== null &&
-            item.values[param.id] !== undefined
-
-            ? item.values[param.id]
-
-            : '-';
-
-
-        html += `
-
-            <div
-                style="
-                    background:#f8fafc;
-                    padding:8px 10px;
-                    border-radius:4px;
-                    border:1px solid #e2e8f0;
-                    font-size:12.5px;
-                "
-            >
-
-                <div
-                    style="
-                        color:#64748b;
-                        font-size:11px;
-                    "
-                >
-
-                    ${param.name}
-                    (${param.unit})
-
-                </div>
-
-
-                <div
-                    style="
-                        font-weight:700;
-                        color:#0b5394;
-                        font-size:14px;
-                    "
-                >
-
-                    ${val}
-
-                </div>
-
-            </div>
-
-        `;
-
+        const val = item.values && item.values[param.id] !== null && item.values[param.id] !== undefined ? item.values[param.id] : '-';
+        const unit = (item.units && item.units[param.id]) || param.unit;
+        const displayVal = (val!=='-'&&val!==null&&val!==undefined) ? String(val).replace('.',',') : '-';
+        const maxInfo = param.maxVal !== null ? 'Maks: ' + param.maxVal : '';
+        html +=
+          '<div style="background:#f8fafc;padding:8px 10px;border-radius:4px;border:1px solid #e2e8f0;font-size:12.5px;">' +
+            '<div style="color:#64748b;font-size:11px;display:flex;justify-content:space-between;align-items:center;">' +
+              '<span>' + param.name + '</span>' +
+              '<span style="background:#e2e8f0;color:#334155;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600;">' + escapeHtml(unit) + '</span>' +
+            '</div>' +
+            '<div style="font-weight:700;color:#0b5394;font-size:14px;margin-top:4px;">' + displayVal + '</div>' +
+            (maxInfo ? '<div style="font-size:10px;color:#94a3b8;">' + maxInfo + '</div>' : '') +
+          '</div>';
       });
 
-
-      html += `</div>`;
-
-
-      document.getElementById(
-        'modalBody'
-      ).innerHTML = html;
-
-
-      document.getElementById(
-        'detailModal'
-      ).style.display = 'flex';
-
+      html += '</div>';
+      document.getElementById('modalBody').innerHTML = html;
+      document.getElementById('detailModal').style.display = 'flex';
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLOSE MODAL
-    |--------------------------------------------------------------------------
-    */
-
-    function closeModal() {
-
-      document.getElementById(
-        'detailModal'
-      ).style.display = 'none';
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLICK OUTSIDE MODAL
-    |--------------------------------------------------------------------------
-    */
-
-    window.onclick = function (e) {
-
-      const modal =
-        document.getElementById(
-          'detailModal'
-        );
-
-
-      if (e.target === modal) {
-
-        closeModal();
-
-      }
-
-    };
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE DATA
-    |--------------------------------------------------------------------------
-    */
+    function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+    window.onclick = function(e) { if (e.target === document.getElementById('detailModal')) closeModal(); };
 
     async function deleteRecord(id) {
-
-      if (
-        !confirm(
-          'Apakah Anda yakin ingin ' +
-          'menghapus data monitoring ini?'
-        )
-      ) {
-
-        return;
-
-      }
-
-
+      if (!confirm('Apakah Anda yakin ingin menghapus data monitoring ini?')) return;
       try {
-
-        const response =
-          await fetch(
-            API.delete,
-            {
-
-              method: 'POST',
-
-              headers: {
-                'Content-Type':
-                  'application/json'
-              },
-
-              body:
-                JSON.stringify({
-                  id: id
-                })
-
-            }
-          );
-
-
-        const result =
-          await response.json();
-
-
-        if (
-          !response.ok ||
-          !result.success
-        ) {
-
-          throw new Error(
-            result.message ||
-            'Gagal menghapus data.'
-          );
-
-        }
-
-
-        alert(
-          '✅ Data berhasil dihapus.'
-        );
-
-
+        const response = await fetch(API.delete, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const result = await response.json();
+        if (!response.ok||!result.success) throw new Error(result.message||'Gagal menghapus data.');
+        alert('Data berhasil dihapus.');
         await renderTableFromDatabase();
-
-
-      } catch (error) {
-
-        console.error(error);
-
-
-        alert(
-          '❌ Gagal menghapus data.\n\n' +
-          error.message
-        );
-
+      } catch(error) {
+        alert('Gagal menghapus data.\n\n' + error.message);
       }
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | GET DATA PREVIEW
-    |--------------------------------------------------------------------------
-    */
 
     function getDataPreview() {
-
-      const location =
-        document.getElementById(
-          'location'
-        ).value ||
-        'Semua';
-
-
-      const kodeCerobong =
-        document.getElementById(
-          'kodeCerobong'
-        ).value ||
-        'Semua';
-
-
-      const periodeBulan =
-        document.getElementById(
-          'periodeBulan'
-        ).value;
-
-      let startDate = '';
-      let endDate = '';
-      let displayMonth = '-';
-
-      if (periodeBulan) {
-        const [yearStr, monthStr] = periodeBulan.split('-');
-        const yearNum = parseInt(yearStr, 10);
-        const monthNum = parseInt(monthStr, 10);
-        const lastDay = new Date(yearNum, monthNum, 0).getDate();
-        startDate = `${yearStr}-${monthStr}-01`;
-        endDate = `${yearStr}-${monthStr}-${String(lastDay).padStart(2, '0')}`;
-        const monthName = INDO_MONTHS[monthNum - 1] || monthStr;
-        displayMonth = `${monthName} ${yearStr}`;
-      }
-
-
+      const location = document.getElementById('location').value || 'Semua';
+      const kodeCerobong = document.getElementById('kodeCerobong').value || 'Semua';
+      const inputDate = document.getElementById('inputDate').value || '';
       const filled = [];
-
-
       PARAMETER_LIST.forEach(param => {
-
-        const input =
-          document.getElementById(
-            `param_${param.id}`
-          );
-
-
-        if (
-          input.value.trim() !== ''
-        ) {
-
-          filled.push(
-            `${param.name} = ${input.value}`
-          );
-
-        }
-
+        const input = document.getElementById('param_' + param.id);
+        const unitSel = document.getElementById('unit_' + param.id);
+        const unit = unitSel ? unitSel.value : param.unit;
+        if (input && input.value.trim() !== '') filled.push(param.name + ' = ' + input.value.trim() + ' ' + unit);
       });
-
-
-      const message =
-
-        `🔎 Query / Filter Data:\n\n` +
-
-        `- Location: ${location}\n` +
-
-        `- Kode Cerobong: ${kodeCerobong}\n` +
-
-        `- Periode Bulan: ${displayMonth} (${startDate} s/d ${endDate})\n\n` +
-
-        `- Parameter Terisi (${filled.length}):\n` +
-
-        `  ${filled.join('\n  ') ||
-        '(Belum ada angka yang diinput)'
-        }`;
-
-
-      alert(message);
-
+      alert('Query / Filter Data:\n\n- Location: ' + location + '\n- Kode Cerobong: ' + kodeCerobong + '\n- Tanggal Penginputan: ' + (inputDate||'-') + '\n\n- Parameter Terisi (' + filled.length + '):\n  ' + (filled.join('\n  ')||'(Belum ada angka yang diinput)'));
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | EXPORT EXCEL (XLSX) - Riwayat Data
-    |--------------------------------------------------------------------------
-    */
 
     function exportToExcel() {
-
-      const records = databaseRecords;
-
-      if (records.length === 0) {
-        alert('Tidak ada data untuk diekspor!');
-        return;
-      }
-
-      /* Build worksheet data */
+      if (databaseRecords.length === 0) { alert('Tidak ada data untuk diekspor!'); return; }
       const wsData = [];
-
-      /* Header row */
-      const headers = [
-        'No',
-        'Location',
-        'Kode Cerobong',
-        'Periode Bulan',
-        'Tanggal Mulai',
-        'Tanggal Akhir',
-        ...PARAMETER_LIST.map(p => `${p.name} (${p.unit})`),
-        'Waktu Input'
-      ];
-
-      wsData.push(headers);
-
-      /* Data rows */
-      records.forEach((record, index) => {
-
-        const row = [
-          index + 1,
-          record.location,
-          record.kodeCerobong,
-          formatPeriodeDisplay(record),
-          record.startDate,
-          record.endDate,
-          ...PARAMETER_LIST.map(p => {
-            const val = record.values && record.values[p.id];
-            return (val !== null && val !== undefined && val !== '') ? Number(val) : '';
-          }),
+      wsData.push(['No','Location','Kode Cerobong','Tanggal Penginputan', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ') [Maks: ' + (p.maxVal!==null?p.maxVal:'-') + ']'), 'Waktu Input']);
+      databaseRecords.forEach((record, index) => {
+        wsData.push([
+          index+1, record.location, record.kodeCerobong, formatTanggalDisplay(record),
+          ...PARAMETER_LIST.map(p => { const v=parseDecimal(record.values&&record.values[p.id]); return (v!==null&&!isNaN(v))?v:''; }),
           record.timestamp
-        ];
-
-        wsData.push(row);
-
+        ]);
       });
-
-      /* Create workbook */
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-      /* Column widths */
-      ws['!cols'] = [
-        { wch: 5 },  /* No */
-        { wch: 15 }, /* Location */
-        { wch: 15 }, /* Kode Cerobong */
-        { wch: 18 }, /* Periode Bulan */
-        { wch: 14 }, /* Tanggal Mulai */
-        { wch: 14 }, /* Tanggal Akhir */
-        ...PARAMETER_LIST.map(() => ({ wch: 16 })),
-        { wch: 20 }  /* Waktu Input */
-      ];
-
+      ws['!cols'] = [{wch:5},{wch:15},{wch:15},{wch:20},...PARAMETER_LIST.map(()=>({wch:18})),{wch:20}];
       XLSX.utils.book_append_sheet(wb, ws, 'Riwayat Data');
-
-      const today = new Date().toISOString().split('T')[0];
-      XLSX.writeFile(wb, `KLHK_Monitoring_CEMS_${today}.xlsx`);
-
+      XLSX.writeFile(wb, 'KLHK_Monitoring_CEMS_' + new Date().toISOString().split('T')[0] + '.xlsx');
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CSV ESCAPE (kept for backward compatibility)
-    |--------------------------------------------------------------------------
-    */
-
-    function csvEscape(value) {
-
-      if (
-        value === null ||
-        value === undefined
-      ) {
-
-        return '';
-
-      }
-
-
-      return String(value)
-        .replaceAll('"', '""');
-
-    }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | BERSIHKAN SEMUA DATA
-    |--------------------------------------------------------------------------
-    |
-    | Untuk saat ini fungsi ini menghapus seluruh
-    | data menggunakan endpoint PHP tambahan.
-    |
-    */
 
     async function clearAllData() {
-
-      if (
-        !confirm(
-          'PERINGATAN!\n\n' +
-          'Apakah Anda yakin ingin ' +
-          'menghapus SELURUH data monitoring ' +
-          'dari database?\n\n' +
-          'Tindakan ini tidak dapat dibatalkan.'
-        )
-      ) {
-
-        return;
-
-      }
-
-
+      if (!confirm('PERINGATAN!\n\nApakah Anda yakin ingin menghapus SELURUH data monitoring dari database?\n\nTindakan ini tidak dapat dibatalkan.')) return;
       try {
-
-        const response =
-          await fetch(
-            'clear.php',
-            {
-
-              method: 'POST',
-
-              headers: {
-                'Content-Type':
-                  'application/json'
-              }
-
-            }
-          );
-
-
-        const result =
-          await response.json();
-
-
-        if (
-          !response.ok ||
-          !result.success
-        ) {
-
-          throw new Error(
-            result.message ||
-            'Gagal menghapus seluruh data.'
-          );
-
-        }
-
-
-        alert(
-          '✅ Seluruh data monitoring berhasil dihapus.'
-        );
-
-
+        const response = await fetch('clear.php', { method:'POST', headers:{'Content-Type':'application/json'} });
+        const result = await response.json();
+        if (!response.ok||!result.success) throw new Error(result.message||'Gagal menghapus seluruh data.');
+        alert('Seluruh data monitoring berhasil dihapus.');
         await renderTableFromDatabase();
-
-
-      } catch (error) {
-
-        console.error(error);
-
-
-        alert(
-          '❌ Gagal menghapus seluruh data.\n\n' +
-          error.message
-        );
-
+      } catch(error) {
+        alert('Gagal menghapus seluruh data.\n\n' + error.message);
       }
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHART: Populate Year Dropdown
-    |--------------------------------------------------------------------------
-    */
 
     function populateChartYearDropdown() {
-
       const yearSelect = document.getElementById('chartYear');
       const currentVal = yearSelect.value;
-
-      /* Extract unique years from startDate */
       const years = new Set();
-
       databaseRecords.forEach(item => {
-        if (item.startDate) {
-          const year = item.startDate.substring(0, 4);
-          years.add(year);
-        }
+        const d = item.inputDate || item.startDate;
+        if (d) years.add(d.substring(0,4));
       });
-
       const sortedYears = Array.from(years).sort().reverse();
-
       let html = '<option value="">-- Pilih Tahun --</option>';
-      sortedYears.forEach(y => {
-        html += `<option value="${y}" ${y === currentVal ? 'selected' : ''}>${y}</option>`;
-      });
-
+      sortedYears.forEach(y => { html += '<option value="' + y + '"' + (y===currentVal?' selected':'') + '>' + y + '</option>'; });
       yearSelect.innerHTML = html;
-
     }
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CHART: On Location Change - Populate Cerobong
-    |--------------------------------------------------------------------------
-    */
 
     function onChartLocationChange() {
-
       const loc = document.getElementById('chartLocation').value;
       const cerobongSelect = document.getElementById('chartCerobong');
-
       if (!loc) {
         cerobongSelect.innerHTML = '<option value="">-- Pilih Cerobong --</option>';
-        renderChart();
+        renderCharts();
         return;
       }
-
-      /* Find cerobong codes used for this location */
       const cerobongs = new Set();
-
-      databaseRecords.forEach(item => {
-        if (item.location === loc) {
-          cerobongs.add(item.kodeCerobong);
-        }
-      });
-
-      const sorted = Array.from(cerobongs).sort((a, b) => Number(a) - Number(b));
-
+      databaseRecords.forEach(item => { if (item.location===loc) cerobongs.add(item.kodeCerobong); });
+      const sorted = Array.from(cerobongs).sort((a,b) => Number(a)-Number(b));
       let html = '<option value="">-- Pilih Cerobong --</option>';
-      sorted.forEach(c => {
-        html += `<option value="${c}">Cerobong ${c}</option>`;
-      });
-
+      sorted.forEach(c => { html += '<option value="' + c + '">Cerobong ' + c + '</option>'; });
       cerobongSelect.innerHTML = html;
-
-      renderChart();
-
+      renderCharts();
     }
 
+    function setSemester(sem) {
+      currentSemester = sem;
+      document.getElementById('tabS1').classList.toggle('active', sem===1);
+      document.getElementById('tabS2').classList.toggle('active', sem===2);
+      renderCharts();
+    }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CHART: Render Chart
-    |--------------------------------------------------------------------------
-    */
+    function resetAllZoom() {
+      Object.values(chartInstances).forEach(chart => { if (chart&&chart.resetZoom) chart.resetZoom(); });
+    }
 
-    const MONTH_NAMES = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-    ];
+    const MONTH_NAMES_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const SEMESTER_MONTHS = { 1:[0,1,2,3,4,5], 2:[6,7,8,9,10,11] };
 
     const CHART_COLORS = [
-      '#2563eb', '#dc2626', '#16a34a', '#ea580c', '#9333ea',
-      '#0891b2', '#ca8a04', '#be185d', '#4f46e5', '#059669',
-      '#d97706', '#7c3aed', '#0284c7', '#e11d48', '#65a30d',
-      '#6d28d9', '#0d9488', '#b91c1c', '#1d4ed8', '#15803d',
-      '#c2410c', '#7e22ce', '#0e7490'
+      '#2563eb','#dc2626','#16a34a','#ea580c','#9333ea',
+      '#0891b2','#ca8a04','#be185d','#4f46e5','#059669',
+      '#d97706','#7c3aed','#0284c7','#e11d48','#65a30d',
+      '#6d28d9','#0d9488','#b91c1c','#1d4ed8','#15803d',
+      '#c2410c','#7e22ce','#0e7490'
     ];
 
+    function fmtVal(n) {
+      if (n===null||n===undefined) return '-';
+      if (n===0) return '0';
+      if (Math.abs(n)<0.0001) return n.toExponential(3).replace('.',',');
+      if (Math.abs(n)<0.01) return n.toFixed(5).replace('.',',');
+      if (Math.abs(n)<1) return n.toFixed(4).replace('.',',');
+      if (Math.abs(n)<10) return n.toFixed(3).replace('.',',');
+      if (Math.abs(n)<1000) return n.toFixed(1).replace('.',',');
+      return n.toLocaleString('id-ID');
+    }
 
-    function renderChart() {
-
+    function renderCharts() {
       const loc = document.getElementById('chartLocation').value;
       const cerobong = document.getElementById('chartCerobong').value;
       const year = document.getElementById('chartYear').value;
 
-      const canvas = document.getElementById('gasChart');
+      const chartsGrid = document.getElementById('chartsGrid');
       const emptyDiv = document.getElementById('chartEmpty');
       const legendInfo = document.getElementById('chartLegendInfo');
+      const semesterTabs = document.getElementById('semesterTabs');
+      const zoomControls = document.getElementById('chartZoomControls');
 
-      /* Destroy existing chart */
-      if (gasChartInstance) {
-        gasChartInstance.destroy();
-        gasChartInstance = null;
-      }
+      Object.values(chartInstances).forEach(chart => { if (chart) chart.destroy(); });
+      chartInstances = {};
+      chartsGrid.innerHTML = '';
 
-      if (!loc || !cerobong || !year) {
-        canvas.style.display = 'none';
+      if (!loc||!cerobong||!year) {
+        chartsGrid.style.display = 'none';
         emptyDiv.style.display = 'flex';
+        emptyDiv.textContent = 'Pilih Location, Kode Cerobong, dan Tahun untuk menampilkan grafik parameter semesteran.';
         legendInfo.style.display = 'none';
+        semesterTabs.style.display = 'none';
+        zoomControls.style.display = 'none';
         return;
       }
 
-      /* Filter data for this location, cerobong, year */
-      const filtered = databaseRecords.filter(item =>
-        item.location === loc &&
-        item.kodeCerobong === cerobong &&
-        item.startDate &&
-        item.startDate.substring(0, 4) === year
-      );
-
-      if (filtered.length === 0) {
-        canvas.style.display = 'none';
-        emptyDiv.style.display = 'flex';
-        emptyDiv.textContent =
-          `Tidak ada data untuk ${loc} - Cerobong ${cerobong} tahun ${year}.`;
-        legendInfo.style.display = 'none';
-        return;
-      }
-
-      /* Group by month: for each month, average the parameter values */
-      const monthlyData = {};
-
-      for (let m = 0; m < 12; m++) {
-        monthlyData[m] = { count: 0, sums: {} };
-        PARAMETER_LIST.forEach(p => {
-          monthlyData[m].sums[p.id] = { total: 0, count: 0 };
-        });
-      }
-
-      filtered.forEach(item => {
-        const month = parseInt(item.startDate.substring(5, 7), 10) - 1;
-
-        PARAMETER_LIST.forEach(p => {
-          const val = item.values && item.values[p.id];
-          if (val !== null && val !== undefined && val !== '' && !isNaN(Number(val))) {
-            monthlyData[month].sums[p.id].total += Number(val);
-            monthlyData[month].sums[p.id].count += 1;
-          }
-        });
-
-        monthlyData[month].count += 1;
+      const filtered = databaseRecords.filter(item => {
+        const d = item.inputDate || item.startDate;
+        return item.location===loc && item.kodeCerobong===cerobong && d && d.substring(0,4)===year;
       });
 
-      /* Build datasets - only include parameters that have at least one value */
-      const datasets = [];
+      if (filtered.length === 0) {
+        chartsGrid.style.display = 'none';
+        emptyDiv.style.display = 'flex';
+        emptyDiv.textContent = 'Tidak ada data untuk ' + loc + ' - Cerobong ' + cerobong + ' tahun ' + year + '.';
+        legendInfo.style.display = 'none';
+        semesterTabs.style.display = 'none';
+        zoomControls.style.display = 'none';
+        return;
+      }
+
+      const monthlyData = {};
+      for (let m=0;m<12;m++) {
+        monthlyData[m] = {};
+        PARAMETER_LIST.forEach(p => { monthlyData[m][p.id] = { total:0, count:0 }; });
+      }
+      filtered.forEach(item => {
+        const d = item.inputDate || item.startDate;
+        const month = parseInt(d.substring(5,7),10) - 1;
+        PARAMETER_LIST.forEach(p => {
+          const raw = item.values && item.values[p.id];
+          const val = parseDecimal(raw);
+          if (val!==null&&!isNaN(val)) { monthlyData[month][p.id].total+=val; monthlyData[month][p.id].count+=1; }
+        });
+      });
+
+      const semMonths = SEMESTER_MONTHS[currentSemester];
+      const semLabels = semMonths.map(m => MONTH_NAMES_SHORT[m]);
+      const semLabel = currentSemester===1 ? 'Jan \u2013 Jun' : 'Jul \u2013 Des';
+
+      semesterTabs.style.display = 'flex';
+      zoomControls.style.display = 'flex';
+      emptyDiv.style.display = 'none';
+      chartsGrid.style.display = 'grid';
+      legendInfo.style.display = 'block';
 
       PARAMETER_LIST.forEach((param, idx) => {
+        const dataPoints = semMonths.map(m => {
+          const info = monthlyData[m][param.id];
+          return info.count>0 ? parseFloat((info.total/info.count).toFixed(4)) : null;
+        });
+        const hasData = dataPoints.some(v => v!==null);
 
-        const data = [];
-        let hasData = false;
+        const card = document.createElement('div');
+        card.className = 'single-chart-card';
+        const maxLabel = param.maxVal !== null ? 'Maks: ' + param.maxVal + ' ' + param.unit : '';
+        card.innerHTML =
+          '<div class="chart-title">' +
+            '<span>' + param.name + ' <span style="font-weight:400;color:#64748b;font-size:11px;">(' + param.unit + ')</span></span>' +
+            (maxLabel ? '<span class="max-badge">' + maxLabel + '</span>' : '') +
+          '</div>' +
+          '<canvas id="chart_' + param.id + '" height="200"></canvas>' +
+          (!hasData ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;pointer-events:none;">Tidak ada data ' + semLabel + '</div>' : '');
+        chartsGrid.appendChild(card);
 
-        for (let m = 0; m < 12; m++) {
-          const info = monthlyData[m].sums[param.id];
-          if (info.count > 0) {
-            data.push(parseFloat((info.total / info.count).toFixed(2)));
-            hasData = true;
-          } else {
-            data.push(null);
-          }
+        const canvas = document.getElementById('chart_' + param.id);
+        if (!canvas) return;
+
+        const color = CHART_COLORS[idx % CHART_COLORS.length];
+        const nonNullVals = dataPoints.filter(v => v!==null);
+        let yMin=0, yMax=10;
+        if (nonNullVals.length>0) {
+          const dMax=Math.max(...nonNullVals), dMin=Math.min(...nonNullVals);
+          const range=dMax-dMin||Math.abs(dMax)||1;
+          yMax=dMax+range*0.2;
+          yMin=Math.max(0, dMin-range*0.1);
         }
 
-        if (hasData) {
+        const datasets = [{
+          label: param.name + ' (' + param.unit + ')',
+          data: dataPoints,
+          borderColor: color,
+          backgroundColor: color + '25',
+          borderWidth: 2.5,
+          tension: 0.3,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          fill: true,
+          spanGaps: true
+        }];
+
+        if (param.maxVal !== null) {
           datasets.push({
-            label: `${param.name} (${param.unit})`,
-            data: data,
-            borderColor: CHART_COLORS[idx % CHART_COLORS.length],
-            backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] + '20',
-            borderWidth: 2,
-            tension: 0.3,
-            pointRadius: 4,
-            pointHoverRadius: 6,
+            label: 'Baku Mutu (' + param.maxVal + ')',
+            data: semMonths.map(() => param.maxVal),
+            borderColor: '#ef4444',
+            borderWidth: 1.5,
+            borderDash: [5,4],
+            pointRadius: 0,
             fill: false,
             spanGaps: true
           });
+          yMax = Math.max(yMax, param.maxVal * 1.1);
         }
 
-      });
-
-      if (datasets.length === 0) {
-        canvas.style.display = 'none';
-        emptyDiv.style.display = 'flex';
-        emptyDiv.textContent = 'Tidak ada data parameter yang terisi untuk periode ini.';
-        legendInfo.style.display = 'none';
-        return;
-      }
-
-      /* Render chart */
-      emptyDiv.style.display = 'none';
-      canvas.style.display = 'block';
-      legendInfo.style.display = 'block';
-
-      const ctx = canvas.getContext('2d');
-
-      gasChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: MONTH_NAMES,
-          datasets: datasets
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          interaction: {
-            mode: 'index',
-            intersect: false
-          },
-          plugins: {
-            title: {
-              display: true,
-              text: `Parameter Gas - ${loc} / Cerobong ${cerobong} / Tahun ${year}`,
-              font: { size: 15, weight: 'bold' },
-              color: '#1e293b',
-              padding: { bottom: 16 }
-            },
-            legend: {
-              position: 'bottom',
-              labels: {
-                usePointStyle: true,
-                padding: 12,
-                font: { size: 11 }
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(15, 23, 42, 0.9)',
-              titleFont: { size: 13 },
-              bodyFont: { size: 12 },
-              padding: 12,
-              cornerRadius: 8,
-              callbacks: {
-                label: function (context) {
-                  return `${context.dataset.label}: ${context.parsed.y ?? '-'}`;
+        const chartInst = new Chart(canvas.getContext('2d'), {
+          type: 'line',
+          data: { labels: semLabels, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode:'index', intersect:false },
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { usePointStyle:true, padding:8, font:{size:10} }
+              },
+              tooltip: {
+                backgroundColor: 'rgba(15,23,42,0.9)',
+                titleFont:{size:12}, bodyFont:{size:11}, padding:10, cornerRadius:6,
+                callbacks: {
+                  label: function(context) {
+                    const val = context.parsed.y;
+                    if (val===null||val===undefined) return context.dataset.label + ': -';
+                    return context.dataset.label + ': ' + fmtVal(Number(val));
+                  }
                 }
-              }
-            }
-          },
-          scales: {
-            x: {
-              title: {
-                display: true,
-                text: 'Bulan',
-                font: { weight: 'bold' }
               },
-              grid: {
-                color: '#e2e8f0'
+              zoom: {
+                pan: { enabled:true, mode:'y', modifierKey:null },
+                zoom: { wheel:{enabled:true,speed:0.1}, pinch:{enabled:true}, mode:'y' },
+                limits: { y:{ min:0, max:param.maxVal!==null?param.maxVal*2:99999, minRange:0.0001 } }
               }
             },
-            y: {
-              title: {
-                display: true,
-                text: 'Nilai Parameter',
-                font: { weight: 'bold' }
+            scales: {
+              x: {
+                title: { display:true, text:semLabel, font:{size:11,weight:'bold'} },
+                grid: { color:'#e2e8f0' }
               },
-              beginAtZero: true,
-              grid: {
-                color: '#e2e8f0'
+              y: {
+                type: 'linear',
+                title: { display:true, text:param.unit, font:{size:11,weight:'bold'} },
+                min: yMin, max: yMax,
+                ticks: {
+                  maxTicksLimit: 6,
+                  callback: function(value) { return fmtVal(Number(value)); },
+                  color: '#475569', font:{size:10}
+                },
+                grid: { color:'#e2e8f0' }
               }
             }
           }
-        }
-      });
+        });
 
+        chartInstances[param.id] = chartInst;
+      });
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | EXPORT CHART DATA TO EXCEL
-    |--------------------------------------------------------------------------
-    */
-
     function exportChartDataToExcel() {
-
       const loc = document.getElementById('chartLocation').value;
       const cerobong = document.getElementById('chartCerobong').value;
       const year = document.getElementById('chartYear').value;
+      if (!loc||!cerobong||!year) { alert('Pilih Location, Kode Cerobong, dan Tahun terlebih dahulu.'); return; }
 
-      if (!loc || !cerobong || !year) {
-        alert('Pilih Location, Kode Cerobong, dan Tahun terlebih dahulu.');
-        return;
-      }
+      const filtered = databaseRecords.filter(item => {
+        const d = item.inputDate || item.startDate;
+        return item.location===loc && item.kodeCerobong===cerobong && d && d.substring(0,4)===year;
+      });
+      if (filtered.length === 0) { alert('Tidak ada data untuk diekspor.'); return; }
 
-      /* Filter data */
-      const filtered = databaseRecords.filter(item =>
-        item.location === loc &&
-        item.kodeCerobong === cerobong &&
-        item.startDate &&
-        item.startDate.substring(0, 4) === year
-      );
-
-      if (filtered.length === 0) {
-        alert('Tidak ada data untuk diekspor.');
-        return;
-      }
-
-      /* Compute monthly averages */
       const monthlyData = {};
-
-      for (let m = 0; m < 12; m++) {
-        monthlyData[m] = {};
-        PARAMETER_LIST.forEach(p => {
-          monthlyData[m][p.id] = { total: 0, count: 0 };
-        });
+      for (let m=0;m<12;m++) {
+        monthlyData[m]={};
+        PARAMETER_LIST.forEach(p => { monthlyData[m][p.id]={total:0,count:0}; });
       }
-
       filtered.forEach(item => {
-        const month = parseInt(item.startDate.substring(5, 7), 10) - 1;
+        const d = item.inputDate || item.startDate;
+        const month = parseInt(d.substring(5,7),10)-1;
         PARAMETER_LIST.forEach(p => {
-          const val = item.values && item.values[p.id];
-          if (val !== null && val !== undefined && val !== '' && !isNaN(Number(val))) {
-            monthlyData[month][p.id].total += Number(val);
-            monthlyData[month][p.id].count += 1;
-          }
+          const val = parseDecimal(item.values&&item.values[p.id]);
+          if (val!==null&&!isNaN(val)) { monthlyData[month][p.id].total+=val; monthlyData[month][p.id].count+=1; }
         });
       });
 
-      /* Build worksheet */
-      const wsData = [];
-
-      /* Title rows */
-      wsData.push([`Grafik Parameter Gas - ${loc} / Cerobong ${cerobong} / Tahun ${year}`]);
-      wsData.push([`Rata-rata nilai parameter per bulan`]);
-      wsData.push([]);
-
-      /* Header */
-      const header = ['Bulan', ...PARAMETER_LIST.map(p => `${p.name} (${p.unit})`)];
-      wsData.push(header);
-
-      /* Monthly data rows */
-      const MONTH_FULL = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-      ];
-
-      for (let m = 0; m < 12; m++) {
-        const row = [MONTH_FULL[m]];
-        PARAMETER_LIST.forEach(p => {
-          const info = monthlyData[m][p.id];
-          if (info.count > 0) {
-            row.push(parseFloat((info.total / info.count).toFixed(2)));
-          } else {
-            row.push('');
-          }
-        });
-        wsData.push(row);
-      }
-
-      /* Create workbook */
       const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-      /* Merge title cell */
-      ws['!merges'] = [
-        { s: { r: 0, c: 0 }, e: { r: 0, c: PARAMETER_LIST.length } },
-        { s: { r: 1, c: 0 }, e: { r: 1, c: PARAMETER_LIST.length } }
-      ];
-
-      /* Column widths */
-      ws['!cols'] = [
-        { wch: 14 },
-        ...PARAMETER_LIST.map(() => ({ wch: 16 }))
-      ];
-
-      XLSX.utils.book_append_sheet(wb, ws, 'Grafik Bulanan');
-
-      /* Also add raw data sheet */
-      const rawWsData = [];
-
-      rawWsData.push([
-        'No', 'Location', 'Kode Cerobong', 'Periode Bulan', 'Tanggal Mulai', 'Tanggal Akhir',
-        ...PARAMETER_LIST.map(p => `${p.name} (${p.unit})`),
-        'Waktu Input'
-      ]);
-
-      filtered.forEach((record, index) => {
-        const row = [
-          index + 1,
-          record.location,
-          record.kodeCerobong,
-          formatPeriodeDisplay(record),
-          record.startDate,
-          record.endDate,
-          ...PARAMETER_LIST.map(p => {
-            const val = record.values && record.values[p.id];
-            return (val !== null && val !== undefined && val !== '') ? Number(val) : '';
-          }),
-          record.timestamp
+      [1,2].forEach(sem => {
+        const semMonthIdxs = SEMESTER_MONTHS[sem];
+        const semName = sem===1 ? 'Semester 1 (Jan-Jun)' : 'Semester 2 (Jul-Des)';
+        const wsData = [];
+        wsData.push(['Grafik Parameter Gas - ' + loc + ' / Cerobong ' + cerobong + ' / Tahun ' + year + ' / ' + semName]);
+        wsData.push(['Rata-rata nilai parameter per bulan | Baku Mutu sesuai regulasi']);
+        wsData.push([]);
+        wsData.push(['Bulan', ...PARAMETER_LIST.map(p => p.name+' ('+p.unit+')'), ...PARAMETER_LIST.map(p => 'Baku Mutu '+p.name)]);
+        semMonthIdxs.forEach(m => {
+          const row = [INDO_MONTHS[m]];
+          PARAMETER_LIST.forEach(p => { const info=monthlyData[m][p.id]; row.push(info.count>0?parseFloat((info.total/info.count).toFixed(4)):''); });
+          PARAMETER_LIST.forEach(p => { row.push(p.maxVal!==null?p.maxVal:'-'); });
+          wsData.push(row);
+        });
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+        ws['!merges'] = [
+          {s:{r:0,c:0},e:{r:0,c:PARAMETER_LIST.length*2}},
+          {s:{r:1,c:0},e:{r:1,c:PARAMETER_LIST.length*2}}
         ];
-        rawWsData.push(row);
+        ws['!cols'] = [{wch:14},...PARAMETER_LIST.map(()=>({wch:16})),...PARAMETER_LIST.map(()=>({wch:16}))];
+        XLSX.utils.book_append_sheet(wb, ws, semName.substring(0,31));
       });
 
+      const rawWsData = [['No','Location','Kode Cerobong','Tanggal Penginputan',...PARAMETER_LIST.map(p=>p.name+' ('+p.unit+')'),'Waktu Input']];
+      filtered.forEach((record,index) => {
+        rawWsData.push([
+          index+1, record.location, record.kodeCerobong, formatTanggalDisplay(record),
+          ...PARAMETER_LIST.map(p => { const v=parseDecimal(record.values&&record.values[p.id]); return (v!==null&&!isNaN(v))?v:''; }),
+          record.timestamp
+        ]);
+      });
       const ws2 = XLSX.utils.aoa_to_sheet(rawWsData);
-      ws2['!cols'] = [
-        { wch: 5 }, { wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 14 }, { wch: 14 },
-        ...PARAMETER_LIST.map(() => ({ wch: 16 })),
-        { wch: 20 }
-      ];
-
+      ws2['!cols'] = [{wch:5},{wch:15},{wch:15},{wch:20},...PARAMETER_LIST.map(()=>({wch:16})),{wch:20}];
       XLSX.utils.book_append_sheet(wb, ws2, 'Data Mentah');
-
-      const today = new Date().toISOString().split('T')[0];
-      XLSX.writeFile(wb, `KLHK_Grafik_${loc}_Cerobong${cerobong}_${year}_${today}.xlsx`);
-
+      XLSX.writeFile(wb, 'KLHK_Grafik_' + loc + '_Cerobong' + cerobong + '_' + year + '_' + new Date().toISOString().split('T')[0] + '.xlsx');
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIALIZATION
-    |--------------------------------------------------------------------------
-    */
-
-    document.addEventListener(
-      'DOMContentLoaded',
-      async function () {
-
-        renderParameterInputs();
-
-        setDefaultDates();
-
-        await renderTableFromDatabase();
-
-      }
-    );
+    document.addEventListener('DOMContentLoaded', async function() {
+      renderParameterInputs();
+      setDefaultDates();
+      await renderTableFromDatabase();
+    });
 
   </script>
 

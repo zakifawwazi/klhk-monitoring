@@ -37,9 +37,14 @@ if (!$data) {
 
 $location       = trim($data["location"] ?? "");
 $kodeCerobong   = trim($data["kodeCerobong"] ?? "");
-$startDate      = trim($data["startDate"] ?? $data["tanggal"] ?? "");
-$endDate        = trim($data["endDate"] ?? $data["tanggal"] ?? "");
+$inputDate      = trim($data["inputDate"] ?? "");
+$startDate      = trim($data["startDate"] ?? $data["tanggal"] ?? $inputDate ?? "");
+$endDate        = trim($data["endDate"] ?? $data["tanggal"] ?? $inputDate ?? "");
 $periodeBulan   = trim($data["periodeBulan"] ?? "");
+
+// Jika inputDate diisi tapi startDate/endDate kosong, gunakan inputDate
+if (!empty($inputDate) && empty($startDate)) $startDate = $inputDate;
+if (!empty($inputDate) && empty($endDate)) $endDate = $inputDate;
 
 // Jika startDate terisi tetapi endDate kosong, samakan dengan startDate
 if (!empty($startDate) && empty($endDate)) {
@@ -124,6 +129,33 @@ $parameters = [
 |--------------------------------------------------------------------------
 */
 
+// Batas maksimum per parameter sesuai baku mutu
+$paramMaxVal = [
+    "dust"       => 130,
+    "hci"        => 40,
+    "hf"         => 4,
+    "so2"        => 1300,
+    "no2"        => 1600,
+    "co"         => 6000,
+    "noc_as_ch4" => 200,
+    "zn"         => null,   // tidak ada batas
+    "hg"         => 0.4,
+    "cd"         => 0.4,
+    "tl"         => 0.4,
+    "sb"         => 1,
+    "arsenic"    => 2,
+    "cr"         => 2,
+    "co_metal"   => 1,
+    "cu"         => 1,
+    "pb"         => 10,
+    "mn"         => 10,
+    "ni"         => 1,
+    "v"          => 1,
+    "be"         => 0.2,
+    "se"         => 2,
+    "pcdd_pcdf"  => 0.2
+];
+
 $values = [];
 
 foreach ($parameters as $parameter) {
@@ -135,15 +167,27 @@ foreach ($parameters as $parameter) {
         continue;
     }
 
-    if (!is_numeric($value) || $value < 0 || $value > 3500) {
+    if (is_string($value)) {
+        $value = str_replace(",", ".", trim($value));
+    }
 
+    if (!is_numeric($value) || $value < 0) {
         http_response_code(400);
-
         echo json_encode([
             "success" => false,
-            "message" => "Nilai parameter $parameter harus berada antara 0 sampai 3500"
+            "message" => "Nilai parameter $parameter harus berupa angka positif"
         ]);
+        exit;
+    }
 
+    // Validasi batas maksimum per parameter
+    $maxVal = $paramMaxVal[$parameter] ?? null;
+    if ($maxVal !== null && $value > $maxVal) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "message" => "Nilai parameter $parameter melebihi batas maksimum ($maxVal)"
+        ]);
         exit;
     }
 
