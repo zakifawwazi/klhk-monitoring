@@ -890,6 +890,32 @@
         grid-template-columns: 1fr;
       }
     }
+
+    .single-chart-card {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  min-height: 240px;
+  max-height: 240px;
+}
+
+.chart-container canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+#chartsGrid {
+  align-items: start;
+  min-width: 0;
+}
   </style>
 
 </head>
@@ -1814,12 +1840,10 @@
 
         const card = document.createElement('div');
         card.className = 'single-chart-card';
-        const maxLabel = param.maxVal !== null ? 'Baku Mutu: ' + param.maxVal + ' ' + param.unit : '';
         card.innerHTML =
           '<div class="chart-title">' +
           '<span>' + param.name + ' <span style="font-weight:400;color:#64748b;font-size:11px;">(' + param.unit + ')</span></span>' +
           '<div style="display:flex;align-items:center;gap:6px;">' +
-          (maxLabel ? '<span class="max-badge">' + maxLabel + '</span>' : '') +
           '<div class="chart-btn-group">' +
           '<button type="button" class="btn-chart-zoom" title="Zoom In" onclick="zoomChart(\'' + param.id + '\', 1.3)">+</button>' +
           '<button type="button" class="btn-chart-zoom" title="Zoom Out" onclick="zoomChart(\'' + param.id + '\', 0.77)">−</button>' +
@@ -1827,37 +1851,18 @@
           '</div>' +
           '</div>' +
           '</div>' +
-          '<canvas id="chart_' + param.id + '" height="200"></canvas>' +
+          '<div class="chart-container">' +
+          '<canvas id="chart_' + param.id + '"></canvas>' +
+          '</div>' +
           (!hasData ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;pointer-events:none;">Tidak ada data ' + semLabel + '</div>' : '');
         chartsGrid.appendChild(card);
 
         const canvas = document.getElementById('chart_' + param.id);
         if (!canvas) return;
 
-        // SKALA AWAL:
-        // 1. Selalu mulai dari 0 (yMin = 0), TIDAK auto-zoom memotong baseline
-        // 2. TIDAK menampilkan skala standar penuh sampai baku mutu (misal CO 6000),
-        //    melainkan proporsional dengan data aktual parameter ini agar langsung terbaca jelas
+        // Skala Y diserahkan sepenuhnya ke Chart.js tanpa batas paksa.
+        // Pengguna zoom sendiri menggunakan tombol [+] [−] [↺].
         const color = CHART_COLORS[idx % CHART_COLORS.length];
-        const nonNullVals = dataPoints.filter(v => v !== null);
-        const yMin = 0;
-        let yMax;
-        if (nonNullVals.length > 0) {
-          const dMax = Math.max(...nonNullVals);
-          if (dMax > 0) {
-            yMax = dMax * 1.25;
-            if (yMax > 100) yMax = Math.ceil(yMax / 10) * 10;
-            else if (yMax > 10) yMax = Math.ceil(yMax / 5) * 5;
-            else if (yMax > 1) yMax = Math.ceil(yMax);
-            else if (yMax > 0.01) yMax = parseFloat((Math.ceil(yMax * 100) / 100).toFixed(4));
-            else yMax = parseFloat((Math.ceil(yMax * 1000) / 1000).toFixed(4));
-          } else {
-            yMax = param.maxVal !== null ? Math.min(param.maxVal, 10) : 10;
-          }
-        } else {
-          yMax = param.maxVal !== null ? Math.min(param.maxVal, 10) : 10;
-        }
-        if (yMax <= 0) yMax = 1;
 
         const datasets = [{
           label: param.name + ' (' + param.unit + ')',
@@ -1872,24 +1877,18 @@
           spanGaps: true
         }];
 
-        if (param.maxVal !== null) {
-          datasets.push({
-            label: 'Baku Mutu (' + param.maxVal + ')',
-            data: semMonths.map(() => param.maxVal),
-            borderColor: '#ef4444',
-            borderWidth: 1.5,
-            borderDash: [5, 4],
-            pointRadius: 0,
-            fill: false,
-            spanGaps: true
-          });
-        }
-
         const chartInst = new Chart(canvas.getContext('2d'), {
           type: 'line',
           data: { labels: semLabels, datasets },
           options: {
-            animation: false,
+            animation: { duration: 0 },
+            animations: { colors: false, x: false },
+            transitions: {
+              active: { animation: { duration: 0 } },
+              resize: { animation: { duration: 0 } },
+              show: { animation: { duration: 0 } },
+              hide: { animation: { duration: 0 } }
+            },
             responsive: true,
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
@@ -1912,16 +1911,12 @@
               zoom: {
                 pan: { enabled: true, mode: 'y' },
                 zoom: {
-                  wheel: { enabled: false }, // Jangan auto-zoom saat scroll halaman!
+                  wheel: { enabled: false },
                   pinch: { enabled: true },
                   mode: 'y'
                 },
                 limits: {
-                  y: {
-                    min: 0,
-                    max: param.maxVal !== null ? Math.max(param.maxVal * 1.5, 10) : 99999, // Dapat zoom out hingga batas baku mutu
-                    minRange: 0.0001 // Dapat zoom in untuk melihat desimal kecil
-                  }
+                  y: { min: 0, minRange: 0.0001 }
                 }
               }
             },
@@ -1932,9 +1927,8 @@
               },
               y: {
                 type: 'linear',
+                min: 0,
                 title: { display: true, text: param.unit, font: { size: 11, weight: 'bold' } },
-                min: yMin,
-                max: yMax,
                 ticks: {
                   maxTicksLimit: 6,
                   callback: function (value) { return fmtVal(Number(value)); },
