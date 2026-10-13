@@ -735,6 +735,88 @@
       border-color: #94a3b8;
     }
 
+    .chart-mode-toggle {
+      display: inline-flex;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 8px;
+      gap: 4px;
+      margin-bottom: 16px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .mode-toggle-btn {
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: #475569;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mode-toggle-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.7);
+      color: #1e293b;
+    }
+
+    .mode-toggle-btn.active {
+      background: var(--primary-color);
+      color: white;
+      box-shadow: 0 1px 4px rgba(11, 83, 148, 0.25);
+    }
+
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 12px;
+      color: #475569;
+    }
+
+    .stat-pill strong {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
+    .badge-compliant {
+      background: #dcfce7 !important;
+      color: #15803d !important;
+      border: 1px solid #bbf7d0 !important;
+    }
+
+    .badge-non-compliant {
+      background: #fee2e2 !important;
+      color: #dc2626 !important;
+      border: 1px solid #fecaca !important;
+    }
+
+    .semester-avg-stat-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: #475569;
+    }
+
+    .semester-avg-stat-badge strong {
+      color: var(--primary-color);
+      font-weight: 700;
+    }
+
     .charts-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
@@ -892,30 +974,30 @@
     }
 
     .single-chart-card {
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  box-sizing: border-box;
-}
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      box-sizing: border-box;
+    }
 
-.chart-container {
-  position: relative;
-  width: 100%;
-  height: 240px;
-  min-height: 240px;
-  max-height: 240px;
-}
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 240px;
+      min-height: 240px;
+      max-height: 240px;
+    }
 
-.chart-container canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-}
+    .chart-container canvas {
+      display: block;
+      width: 100% !important;
+      height: 100% !important;
+    }
 
-#chartsGrid {
-  align-items: start;
-  min-width: 0;
-}
+    #chartsGrid {
+      align-items: start;
+      min-width: 0;
+    }
   </style>
 
 </head>
@@ -925,13 +1007,6 @@
   <div class="container">
 
     <div class="top-bar">
-      <div class="breadcrumbs">
-        Production, Operation, Quality &amp; Inventory Inquiry
-        <span>&gt;</span>
-        Continuous Emissions Monitoring System (CEMS)
-        <span>&gt;</span>
-        <strong>KLHK Monitoring</strong>
-      </div>
       <div class="user-info">
         <img src="tiga_roda_logo.png" alt="Logo Indocement Tiga Roda" class="logo-indocement">
         PT INDOCEMENT TUNGGAL PRAKARSA
@@ -941,7 +1016,7 @@
     <div class="card">
       <div class="title-header">
         <h2>Environment Monitoring and Measurement</h2>
-        <span class="badge-cems" id="badgeCems">Penginputan Data Parameter (sesuai baku mutu)</span>
+        <span class="badge-cems" id="badgeCems">Penginputan Data Parameter</span>
       </div>
 
       <form id="monitoringForm">
@@ -960,11 +1035,11 @@
           </div>
 
           <div class="form-field">
-            <label for="kodeCerobong">Kode Cerobong :</label>
+            <label for="kodeCerobong">Kode cerobong/desa :</label>
             <input type="text" id="kodeCerobong" name="kodeCerobong" list="cerobongHistoryList"
-              placeholder="Ketik kode cerobong" autocomplete="off" required>
+              placeholder="Ketik kode cerobong/desa" autocomplete="off" required>
             <datalist id="cerobongHistoryList"></datalist>
-            <small class="field-hint">Ketik langsung atau pilih dari riwayat cerobong</small>
+            <small class="field-hint">Ketik langsung atau pilih dari riwayat cerobong/desa</small>
           </div>
 
           <div class="form-field">
@@ -986,6 +1061,7 @@
                 title="Pilih satuan untuk diterapkan ke seluruh parameter"
                 onchange="setAllUnits(this.value); this.selectedIndex = 0;">
                 <option value="" disabled selected>Ubah Semua Satuan</option>
+                <option value="μg/m³">Set Semua ke μg/m³</option>
                 <option value="mg/Nm³">Set Semua ke mg/Nm³</option>
                 <option value="ng/Nm³">Set Semua ke ng/Nm³</option>
                 <option value="%">Set Semua ke %</option>
@@ -1018,7 +1094,7 @@
       <div class="filter-bar" id="filterBar">
         <div class="filter-field">
           <label for="filterSearch">&#128269; Pencarian</label>
-          <input type="text" id="filterSearch" placeholder="Cari location, cerobong, tanggal..."
+          <input type="text" id="filterSearch" placeholder="Cari location, cerobong/desa, tanggal..."
             oninput="applyFilters()">
         </div>
         <div class="filter-field">
@@ -1033,9 +1109,9 @@
           </select>
         </div>
         <div class="filter-field">
-          <label for="filterCerobong">Kode Cerobong</label>
+          <label for="filterCerobong">Kode Cerobong/Desa</label>
           <select id="filterCerobong" onchange="applyFilters()">
-            <option value="">-- Semua Cerobong --</option>
+            <option value="">-- Semua Cerobong/Desa --</option>
           </select>
         </div>
         <div class="filter-actions">
@@ -1051,7 +1127,7 @@
             <tr>
               <th style="width:45px;">No</th>
               <th>Location</th>
-              <th>Kode Cerobong</th>
+              <th>Kode Cerobong/Desa</th>
               <th>Tanggal Penginputan</th>
               <th>Nilai Parameter (Terisi)</th>
               <th>Waktu Input</th>
@@ -1073,7 +1149,7 @@
 
     <div class="chart-section" id="chartSection">
       <div class="chart-header">
-        <h3>&#128200; Grafik Parameter per Lokasi &amp; Cerobong (Semesteran)</h3>
+        <h3 id="chartTitleText">&#128200; Grafik Parameter per Lokasi &amp; Cerobong/Desa (20 Semester / 10 Tahun)</h3>
         <button class="btn btn-success" onclick="exportChartDataToExcel()">&#128229; Export Grafik ke Excel</button>
       </div>
 
@@ -1090,47 +1166,72 @@
           </select>
         </div>
         <div class="filter-field">
-          <label for="chartCerobong">Kode Cerobong</label>
+          <label for="chartCerobong">Kode Cerobong/Desa</label>
           <select id="chartCerobong" onchange="renderCharts()">
-            <option value="">-- Pilih Cerobong --</option>
+            <option value="">-- Pilih Cerobong/Desa --</option>
           </select>
         </div>
-        <div class="filter-field">
-          <label for="chartYear">Tahun</label>
-          <select id="chartYear" onchange="renderCharts()">
-            <option value="">-- Pilih Tahun --</option>
+        <div class="filter-field" style="flex: 1.2; min-width: 220px;">
+          <label for="chartParameter">Parameter Monitoring</label>
+          <select id="chartParameter" onchange="renderCharts()">
+            <option value="">-- Pilih Parameter --</option>
           </select>
         </div>
-      </div>
-
-      <div class="semester-tabs" id="semesterTabs" style="display:none;">
-        <button class="semester-tab active" id="tabS1" onclick="setSemester(1)">
-          &#128197; Semester 1 (Januari - Juni)
-        </button>
-        <button class="semester-tab" id="tabS2" onclick="setSemester(2)">
-          &#128197; Semester 2 (Juli - Desember)
-        </button>
-      </div>
-
-      <div id="chartZoomControls"
-        style="display:none; justify-content:space-between; align-items:center; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
-        <span style="font-size:12.5px; color:#64748b;">
-          💡 Skala awal mulai dari 0 disesuaikan dengan data aktual (tanpa auto-zoom). Gunakan tombol <strong>[+]</strong> dan <strong>[−]</strong> pada setiap kartu untuk zoom in/out hingga batas baku mutu.
-        </span>
-        <button onclick="resetAllZoom()"
-          style="background:#0b5394; color:#fff; border:none; border-radius:6px; padding:5px 14px; font-size:12px; cursor:pointer; font-weight:600;">
-          &#8634; Reset Semua Zoom
-        </button>
+        <div class="filter-field" style="flex: 1.2; min-width: 200px;">
+          <label for="chartEndYear">Periode 10 Tahun (20 Semester)</label>
+          <select id="chartEndYear" onchange="renderCharts()">
+            <option value="">-- Pilih Periode --</option>
+          </select>
+        </div>
       </div>
 
       <div class="chart-empty" id="chartEmpty">
-        Pilih Location, Kode Cerobong, dan Tahun untuk menampilkan grafik parameter semesteran.
+        Pilih Location, Kode Cerobong/Desa, Parameter, dan Periode 10 Tahun untuk menampilkan grafik parameter.
       </div>
 
-      <div class="charts-grid" id="chartsGrid" style="display:none;"></div>
+      <div id="chartSingleContainer" style="display:none;">
+        <div class="single-chart-card" style="padding: 18px;">
+          <div class="chart-title" style="flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+            <div style="display:flex; align-items:center; gap: 8px; flex-wrap:wrap;">
+              <span id="chartParamTitle" style="font-size: 16px; font-weight:700; color:#0b5394;">NO2</span>
+              <span id="chartBakuMutuBadge" class="max-badge" style="font-size: 11.5px; padding: 3px 8px;">Baku Mutu:
+                400 μg/m³</span>
+              <span id="chartComplianceBadge"
+                style="font-size: 11.5px; padding: 3px 8px; border-radius: 4px; font-weight:600;">Memenuhi Baku
+                Mutu</span>
+            </div>
+            <div style="display:flex; align-items:center; gap: 8px; flex-wrap: wrap;">
+              <div class="param-nav-btns" style="display:inline-flex; gap: 4px;">
+                <button type="button" class="btn-filter"
+                  style="padding: 4px 10px; font-size: 12px; background:#e2e8f0; color:#334155;"
+                  onclick="prevParameter()">&#9664; Sebelumnya</button>
+                <button type="button" class="btn-filter"
+                  style="padding: 4px 10px; font-size: 12px; background:#e2e8f0; color:#334155;"
+                  onclick="nextParameter()">Berikutnya &#9654;</button>
+              </div>
+              <div class="chart-btn-group">
+                <button type="button" class="btn-chart-zoom" title="Zoom In" onclick="zoomActiveChart(1.3)">+</button>
+                <button type="button" class="btn-chart-zoom" title="Zoom Out" onclick="zoomActiveChart(0.77)">−</button>
+                <button type="button" class="btn-chart-zoom" title="Reset Zoom"
+                  onclick="resetActiveChartZoom()">&#8634;</button>
+              </div>
+            </div>
+          </div>
 
-      <div class="chart-legend-info" id="chartLegendInfo" style="display:none;">
-        Grafik menampilkan nilai parameter per emisi satu per satu per bulan dalam semester yang dipilih. Skala awal mulai dari 0 tanpa auto-zoom. Anda dapat melakukan zoom in manual dengan tombol [+] pada kartu atau zoom out hingga batas baku mutu.
+          <div id="chartStatsBadges" style="display:flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;"></div>
+
+          <div class="chart-container" style="position:relative; height: 420px; width: 100%;">
+            <canvas id="activeParamChart"></canvas>
+          </div>
+
+          <div id="chartSemesterTableWrap" style="margin-top: 18px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-legend-info" id="chartLegendInfo" style="display:none; margin-top: 14px;">
+        💡 Grafik menampilkan pergerakan nilai rata-rata per semester selama rentang 10 tahun (total 20 semester). Garis
+        putus-putus merah menandakan batas baku mutu maksimum yang diizinkan.
       </div>
     </div>
 
@@ -1151,11 +1252,16 @@
     const API = { save: 'save.php', get: 'get.php', delete: 'delete.php' };
 
     const PARAMETER_LIST = [
+      { id: "no2", name: "NO2", unit: "\u03bcg/m\u00b3", maxVal: 400, isAmbient: true },
+      { id: "ox", name: "Ox", unit: "\u03bcg/m\u00b3", maxVal: 350, isAmbient: true },
+      { id: "nmhc", name: "NMHC", unit: "\u03bcg/m\u00b3", maxVal: 320, isAmbient: true },
+      { id: "tsp", name: "TSP", unit: "\u03bcg/m\u00b3", maxVal: 460, isAmbient: true },
+      { id: "pm10", name: "PM10", unit: "\u03bcg/m\u00b3", maxVal: 150, isAmbient: true },
+      { id: "pm2_5", name: "PM 2,5", unit: "\u03bcg/m\u00b3", maxVal: 110, isAmbient: true },
       { id: "dust", name: "Dust", unit: "mg/Nm\u00b3", maxVal: 130 },
       { id: "hci", name: "HCI", unit: "mg/Nm\u00b3", maxVal: 40 },
       { id: "hf", name: "HF", unit: "mg/Nm\u00b3", maxVal: 4 },
       { id: "so2", name: "SO2", unit: "mg/Nm\u00b3", maxVal: 1300 },
-      { id: "no2", name: "NO2", unit: "mg/Nm\u00b3", maxVal: 1600 },
       { id: "co", name: "CO", unit: "mg/Nm\u00b3", maxVal: 6000 },
       { id: "noc_as_ch4", name: "NOC as CH4", unit: "mg/Nm\u00b3", maxVal: 200 },
       { id: "zn", name: "Zn", unit: "mg/Nm\u00b3", maxVal: 150 },
@@ -1180,8 +1286,7 @@
     let filteredRecords = [];
     let currentPage = 1;
     const ITEMS_PER_PAGE = 5;
-    let chartInstances = {};
-    let currentSemester = 1;
+    let activeChartInstance = null;
 
     const CEROBONG_STORAGE_KEY = 'klhk_cerobong_history';
     const DEFAULT_CEROBONGS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '14', '16', '17', '18'];
@@ -1235,9 +1340,9 @@
         if (!isNaN(na) && !isNaN(nb)) return na - nb;
         return a.localeCompare(b);
       });
-      let html = '<option value="">-- Semua Cerobong --</option>';
+      let html = '<option value="">-- Semua Cerobong/Desa --</option>';
       sorted.forEach(c => {
-        html += '<option value="' + escapeHtml(c) + '"' + (c === currentVal ? ' selected' : '') + '>Cerobong ' + escapeHtml(c) + '</option>';
+        html += '<option value="' + escapeHtml(c) + '"' + (c === currentVal ? ' selected' : '') + '>Cerobong/Desa ' + escapeHtml(c) + '</option>';
       });
       filterSelect.innerHTML = html;
     }
@@ -1252,9 +1357,10 @@
         const placeholderText = param.maxVal !== null ? '0 \u2013 ' + param.maxVal : 'contoh: 0,05';
         card.innerHTML =
           '<div class="param-card-header">' +
-          '<span class="param-name">' + param.name + '</span>' +
+          '<span class="param-name">' + param.name + (param.isAmbient ? ' <span style="font-size:10px;background:#e0f2fe;color:#0369a1;padding:1px 5px;border-radius:3px;font-weight:600;">Ambien</span>' : '') + '</span>' +
           '<div class="param-unit-wrap">' +
           '<select id="unit_' + param.id + '" data-id="' + param.id + '" class="param-unit-select" title="Pilih satuan untuk ' + param.name + '">' +
+          '<option value="\u03bcg/m\u00b3"' + (param.unit === '\u03bcg/m\u00b3' ? ' selected' : '') + '>\u03bcg/m\u00b3</option>' +
           '<option value="mg/Nm\u00b3"' + (param.unit === 'mg/Nm\u00b3' ? ' selected' : '') + '>mg/Nm\u00b3</option>' +
           '<option value="ng/Nm\u00b3"' + (param.unit === 'ng/Nm\u00b3' ? ' selected' : '') + '>ng/Nm\u00b3</option>' +
           '<option value="%"' + (param.unit === '%' ? ' selected' : '') + '>%</option>' +
@@ -1377,7 +1483,7 @@
       const inputDate = document.getElementById('inputDate').value;
 
       if (!location) { alert('Silakan pilih Location terlebih dahulu.'); return; }
-      if (!kodeCerobong) { alert('Silakan ketik atau pilih Kode Cerobong terlebih dahulu.'); return; }
+      if (!kodeCerobong) { alert('Silakan ketik atau pilih Kode Cerobong/Desa terlebih dahulu.'); return; }
       if (!inputDate) { alert('Silakan pilih Tanggal Penginputan terlebih dahulu.'); return; }
 
       const periodeBulan = inputDate.substring(0, 7);
@@ -1454,7 +1560,7 @@
         if (filterCerobong && item.kodeCerobong !== filterCerobong) return false;
         if (searchTerm) {
           const target = [
-            item.location, 'Cerobong ' + item.kodeCerobong, item.kodeCerobong,
+            item.location, 'Cerobong ' + item.kodeCerobong, 'Desa ' + item.kodeCerobong, item.kodeCerobong,
             item.inputDate || '', item.startDate || '', item.periodeBulan || '',
             formatTanggalDisplay(item), item.timestamp
           ].join(' ').toLowerCase();
@@ -1512,7 +1618,7 @@
         tr.innerHTML =
           '<td>' + (globalIndex + 1) + '</td>' +
           '<td><strong>' + escapeHtml(item.location) + '</strong></td>' +
-          '<td>Cerobong ' + escapeHtml(item.kodeCerobong) + '</td>' +
+          '<td>Cerobong/Desa ' + escapeHtml(item.kodeCerobong) + '</td>' +
           '<td><span class="badge-periode">' + formatTanggalDisplay(item) + '</span></td>' +
           '<td><div class="param-badge-container">' + (filledParams.length > 0 ? filledParams.join('') : '<span style="color:#94a3b8;">Tidak ada nilai yang diinput</span>') + '</div></td>' +
           '<td style="color:#64748b;font-size:12px;">' + item.timestamp + '</td>' +
@@ -1564,7 +1670,8 @@
         if (!response.ok || !result.success) throw new Error(result.message || 'Gagal mengambil data.');
         databaseRecords = result.data || [];
         applyFilters();
-        populateChartYearDropdown();
+        populateChartParameterDropdown();
+        populateChartPeriodDropdown();
         updateCerobongDatalist();
       } catch (error) {
         console.error(error);
@@ -1583,10 +1690,10 @@
     function viewDetail(index) {
       const item = databaseRecords[index];
       if (!item) return;
-      document.getElementById('modalTitle').innerText = 'Detail Data: ' + item.location + ' (Cerobong ' + item.kodeCerobong + ')';
+      document.getElementById('modalTitle').innerText = 'Detail Data: ' + item.location + ' (Cerobong/Desa ' + item.kodeCerobong + ')';
       let html = '<div style="margin-bottom:15px;font-size:13.5px;line-height:1.6;">' +
         '<div><strong>Location:</strong> ' + escapeHtml(item.location) + '</div>' +
-        '<div><strong>Kode Cerobong:</strong> ' + escapeHtml(item.kodeCerobong) + '</div>' +
+        '<div><strong>Kode Cerobong/Desa:</strong> ' + escapeHtml(item.kodeCerobong) + '</div>' +
         '<div><strong>Tanggal Penginputan:</strong> <span style="color:#0b5394;font-weight:700;">' + formatTanggalDisplay(item) + '</span></div>' +
         '<div><strong>Waktu Input:</strong> ' + item.timestamp + '</div>' +
         '</div>' +
@@ -1601,7 +1708,7 @@
         html +=
           '<div style="background:#f8fafc;padding:8px 10px;border-radius:4px;border:1px solid #e2e8f0;font-size:12.5px;">' +
           '<div style="color:#64748b;font-size:11px;display:flex;justify-content:space-between;align-items:center;">' +
-          '<span>' + param.name + '</span>' +
+          '<span>' + param.name + (param.isAmbient ? ' <span style="color:#0284c7;font-weight:600;">(Ambien)</span>' : '') + '</span>' +
           '<span style="background:#e2e8f0;color:#334155;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600;">' + escapeHtml(unit) + '</span>' +
           '</div>' +
           '<div style="font-weight:700;color:#0b5394;font-size:14px;margin-top:4px;">' + displayVal + '</div>' +
@@ -1645,13 +1752,13 @@
         const unit = unitSel ? unitSel.value : param.unit;
         if (input && input.value.trim() !== '') filled.push(param.name + ' = ' + input.value.trim() + ' ' + unit);
       });
-      alert('Query / Filter Data:\n\n- Location: ' + location + '\n- Kode Cerobong: ' + kodeCerobong + '\n- Tanggal Penginputan: ' + (inputDate || '-') + '\n\n- Parameter Terisi (' + filled.length + '):\n  ' + (filled.join('\n  ') || '(Belum ada angka yang diinput)'));
+      alert('Query / Filter Data:\n\n- Location: ' + location + '\n- Kode Cerobong/Desa: ' + kodeCerobong + '\n- Tanggal Penginputan: ' + (inputDate || '-') + '\n\n- Parameter Terisi (' + filled.length + '):\n  ' + (filled.join('\n  ') || '(Belum ada angka yang diinput)'));
     }
 
     function exportToExcel() {
       if (databaseRecords.length === 0) { alert('Tidak ada data untuk diekspor!'); return; }
       const wsData = [];
-      wsData.push(['No', 'Location', 'Kode Cerobong', 'Tanggal Penginputan', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ') [Maks: ' + (p.maxVal !== null ? p.maxVal : '-') + ']'), 'Waktu Input']);
+      wsData.push(['No', 'Location', 'Kode Cerobong/Desa', 'Tanggal Penginputan', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ') [Maks: ' + (p.maxVal !== null ? p.maxVal : '-') + ']'), 'Waktu Input']);
       databaseRecords.forEach((record, index) => {
         wsData.push([
           index + 1, record.location, record.kodeCerobong, formatTanggalDisplay(record),
@@ -1661,9 +1768,9 @@
       });
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(wsData);
-      ws['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, ...PARAMETER_LIST.map(() => ({ wch: 18 })), { wch: 20 }];
+      ws['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 18 }, { wch: 20 }, ...PARAMETER_LIST.map(() => ({ wch: 18 })), { wch: 20 }];
       XLSX.utils.book_append_sheet(wb, ws, 'Riwayat Data');
-      XLSX.writeFile(wb, 'KLHK_Monitoring_CEMS_' + new Date().toISOString().split('T')[0] + '.xlsx');
+      XLSX.writeFile(wb, 'KLHK_Monitoring_' + new Date().toISOString().split('T')[0] + '.xlsx');
     }
 
     async function clearAllData() {
@@ -1679,78 +1786,113 @@
       }
     }
 
-    function populateChartYearDropdown() {
-      const yearSelect = document.getElementById('chartYear');
-      const currentVal = yearSelect.value;
-      const years = new Set();
+    function populateChartParameterDropdown() {
+      const select = document.getElementById('chartParameter');
+      if (!select) return;
+      const currentVal = select.value || 'no2';
+      let html = '';
+
+      html += '<optgroup label="Parameter Udara Ambien (Sesuai Regulasi)">';
+      PARAMETER_LIST.filter(p => p.isAmbient).forEach(p => {
+        const limitText = p.maxVal !== null ? ' [Maks: ' + p.maxVal + ' ' + p.unit + ']' : '';
+        html += '<option value="' + p.id + '"' + (p.id === currentVal ? ' selected' : '') + '>' + p.name + limitText + '</option>';
+      });
+      html += '</optgroup>';
+
+      html += '<optgroup label="Parameter Emisi Lainnya">';
+      PARAMETER_LIST.filter(p => !p.isAmbient).forEach(p => {
+        const limitText = p.maxVal !== null ? ' [Maks: ' + p.maxVal + ' ' + p.unit + ']' : '';
+        html += '<option value="' + p.id + '"' + (p.id === currentVal ? ' selected' : '') + '>' + p.name + limitText + '</option>';
+      });
+      html += '</optgroup>';
+
+      select.innerHTML = html;
+    }
+
+    function populateChartPeriodDropdown() {
+      const periodSelect = document.getElementById('chartEndYear');
+      if (!periodSelect) return;
+      const currentVal = periodSelect.value;
+      const currentYear = new Date().getFullYear();
+
+      let maxYear = currentYear;
       databaseRecords.forEach(item => {
         const d = item.inputDate || item.startDate;
-        if (d) years.add(d.substring(0, 4));
+        if (d && d.length >= 4) {
+          const y = parseInt(d.substring(0, 4), 10);
+          if (!isNaN(y) && y > maxYear) maxYear = y;
+        }
       });
-      const sortedYears = Array.from(years).sort().reverse();
-      let html = '<option value="">-- Pilih Tahun --</option>';
-      sortedYears.forEach(y => { html += '<option value="' + y + '"' + (y === currentVal ? ' selected' : '') + '>' + y + '</option>'; });
-      yearSelect.innerHTML = html;
+
+      let html = '';
+      for (let i = 0; i < 5; i++) {
+        const endY = maxYear - i;
+        const startY = endY - 9;
+        const label = startY + ' \u2013 ' + endY + ' (10 Tahun / 20 Semester)';
+        const isSelected = (currentVal ? String(endY) === currentVal : i === 0);
+        html += '<option value="' + endY + '"' + (isSelected ? ' selected' : '') + '>' + label + '</option>';
+      }
+      periodSelect.innerHTML = html;
     }
 
     function onChartLocationChange() {
       const loc = document.getElementById('chartLocation').value;
       const cerobongSelect = document.getElementById('chartCerobong');
       if (!loc) {
-        cerobongSelect.innerHTML = '<option value="">-- Pilih Cerobong --</option>';
+        cerobongSelect.innerHTML = '<option value="">-- Pilih Cerobong/Desa --</option>';
         renderCharts();
         return;
       }
       const cerobongs = new Set();
       databaseRecords.forEach(item => { if (item.location === loc) cerobongs.add(item.kodeCerobong); });
-      const sorted = Array.from(cerobongs).sort((a, b) => Number(a) - Number(b));
-      let html = '<option value="">-- Pilih Cerobong --</option>';
-      sorted.forEach(c => { html += '<option value="' + c + '">Cerobong ' + c + '</option>'; });
+      const sorted = Array.from(cerobongs).sort((a, b) => {
+        const na = Number(a), nb = Number(b);
+        if (!isNaN(na) && !isNaN(nb)) return na - nb;
+        return String(a).localeCompare(String(b));
+      });
+      let html = '<option value="">-- Pilih Cerobong/Desa --</option>';
+      sorted.forEach(c => { html += '<option value="' + escapeHtml(c) + '">Cerobong/Desa ' + escapeHtml(c) + '</option>'; });
       cerobongSelect.innerHTML = html;
       renderCharts();
     }
 
-    function setSemester(sem) {
-      currentSemester = sem;
-      document.getElementById('tabS1').classList.toggle('active', sem === 1);
-      document.getElementById('tabS2').classList.toggle('active', sem === 2);
+    function onChartCerobongChange() {
       renderCharts();
     }
 
-    function resetAllZoom() {
-      Object.values(chartInstances).forEach(chart => {
-        if (chart && chart.resetZoom) chart.resetZoom();
-      });
+    function prevParameter() {
+      const select = document.getElementById('chartParameter');
+      if (!select || select.options.length === 0) return;
+      let idx = select.selectedIndex - 1;
+      if (idx < 0) idx = select.options.length - 1;
+      select.selectedIndex = idx;
+      renderCharts();
     }
 
-    function zoomChart(paramId, factor) {
-      const chart = chartInstances[paramId];
-      if (chart && chart.zoom) {
+    function nextParameter() {
+      const select = document.getElementById('chartParameter');
+      if (!select || select.options.length === 0) return;
+      let idx = select.selectedIndex + 1;
+      if (idx >= select.options.length) idx = 0;
+      select.selectedIndex = idx;
+      renderCharts();
+    }
+
+    function zoomActiveChart(factor) {
+      if (activeChartInstance && activeChartInstance.zoom) {
         try {
-          chart.zoom({ y: factor });
+          activeChartInstance.zoom({ y: factor });
         } catch (e) {
-          chart.zoom(factor);
+          activeChartInstance.zoom(factor);
         }
       }
     }
 
-    function resetChartZoom(paramId) {
-      const chart = chartInstances[paramId];
-      if (chart && chart.resetZoom) {
-        chart.resetZoom();
+    function resetActiveChartZoom() {
+      if (activeChartInstance && activeChartInstance.resetZoom) {
+        activeChartInstance.resetZoom();
       }
     }
-
-    const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    const SEMESTER_MONTHS = { 1: [0, 1, 2, 3, 4, 5], 2: [6, 7, 8, 9, 10, 11] };
-
-    const CHART_COLORS = [
-      '#2563eb', '#dc2626', '#16a34a', '#ea580c', '#9333ea',
-      '#0891b2', '#ca8a04', '#be185d', '#4f46e5', '#059669',
-      '#d97706', '#7c3aed', '#0284c7', '#e11d48', '#65a30d',
-      '#6d28d9', '#0d9488', '#b91c1c', '#1d4ed8', '#15803d',
-      '#c2410c', '#7e22ce', '#0e7490'
-    ];
 
     function fmtVal(n) {
       if (n === null || n === undefined) return '-';
@@ -1766,236 +1908,411 @@
     function renderCharts() {
       const loc = document.getElementById('chartLocation').value;
       const cerobong = document.getElementById('chartCerobong').value;
-      const year = document.getElementById('chartYear').value;
+      const paramId = document.getElementById('chartParameter').value;
+      const endYearVal = document.getElementById('chartEndYear').value;
 
-      const chartsGrid = document.getElementById('chartsGrid');
+      const singleContainer = document.getElementById('chartSingleContainer');
       const emptyDiv = document.getElementById('chartEmpty');
       const legendInfo = document.getElementById('chartLegendInfo');
-      const semesterTabs = document.getElementById('semesterTabs');
-      const zoomControls = document.getElementById('chartZoomControls');
+      const titleText = document.getElementById('chartTitleText');
 
-      Object.values(chartInstances).forEach(chart => { if (chart) chart.destroy(); });
-      chartInstances = {};
-      chartsGrid.innerHTML = '';
+      if (activeChartInstance) {
+        activeChartInstance.destroy();
+        activeChartInstance = null;
+      }
 
-      if (!loc || !cerobong || !year) {
-        chartsGrid.style.display = 'none';
-        emptyDiv.style.display = 'flex';
-        emptyDiv.textContent = 'Pilih Location, Kode Cerobong, dan Tahun untuk menampilkan grafik parameter semesteran.';
-        legendInfo.style.display = 'none';
-        semesterTabs.style.display = 'none';
-        zoomControls.style.display = 'none';
+      if (!loc || !cerobong || !paramId || !endYearVal) {
+        if (singleContainer) singleContainer.style.display = 'none';
+        if (emptyDiv) {
+          emptyDiv.style.display = 'flex';
+          emptyDiv.textContent = 'Pilih Location, Kode Cerobong/Desa, Parameter Monitoring, dan Periode 10 Tahun untuk menampilkan grafik parameter.';
+        }
+        if (legendInfo) legendInfo.style.display = 'none';
+        if (titleText) titleText.innerHTML = '&#128200; Grafik Parameter per Lokasi &amp; Cerobong/Desa (20 Semester / 10 Tahun)';
         return;
       }
 
+      const param = PARAMETER_LIST.find(p => p.id === paramId) || PARAMETER_LIST[0];
+      const endYear = parseInt(endYearVal, 10);
+      const startYear = endYear - 9;
+
+      // Filter data sesuai Location & Kode Cerobong/Desa
       const filtered = databaseRecords.filter(item => {
-        const d = item.inputDate || item.startDate;
-        return item.location === loc && item.kodeCerobong === cerobong && d && d.substring(0, 4) === year;
+        return item.location === loc && String(item.kodeCerobong).trim() === String(cerobong).trim();
       });
 
-      if (filtered.length === 0) {
-        chartsGrid.style.display = 'none';
-        emptyDiv.style.display = 'flex';
-        emptyDiv.textContent = 'Tidak ada data untuk ' + loc + ' - Cerobong ' + cerobong + ' tahun ' + year + '.';
-        legendInfo.style.display = 'none';
-        semesterTabs.style.display = 'none';
-        zoomControls.style.display = 'none';
-        return;
+      // Siapkan 20 semester: [startYear S1, startYear S2, ..., endYear S1, endYear S2]
+      const semesterList = [];
+      for (let y = startYear; y <= endYear; y++) {
+        semesterList.push({ year: y, sem: 1, label: y + ' S1', fullTitle: y + ' Semester 1 (Jan \u2013 Jun)' });
+        semesterList.push({ year: y, sem: 2, label: y + ' S2', fullTitle: y + ' Semester 2 (Jul \u2013 Des)' });
       }
 
-      const monthlyData = {};
-      for (let m = 0; m < 12; m++) {
-        monthlyData[m] = {};
-        PARAMETER_LIST.forEach(p => { monthlyData[m][p.id] = { total: 0, count: 0 }; });
+      // Hitung nilai rata-rata per semester
+      const semValues = [];
+      const semDataCounts = [];
+      let allValues = [];
+      let maxExceeded = false;
+
+      // Ambil unit yang digunakan (default dari param, atau jika ada data dengan unit custom)
+      let activeUnit = param.unit;
+      for (let i = 0; i < filtered.length; i++) {
+        if (filtered[i].units && filtered[i].units[param.id]) {
+          activeUnit = filtered[i].units[param.id];
+          break;
+        }
       }
-      filtered.forEach(item => {
-        const d = item.inputDate || item.startDate;
-        const month = parseInt(d.substring(5, 7), 10) - 1;
-        PARAMETER_LIST.forEach(p => {
-          const raw = item.values && item.values[p.id];
-          const val = parseDecimal(raw);
-          if (val !== null && !isNaN(val)) {
-            monthlyData[month][p.id].total += val;
-            monthlyData[month][p.id].count += 1;
-          }
-        });
-      });
 
-      const semMonths = SEMESTER_MONTHS[currentSemester];
-      const semLabels = semMonths.map(m => MONTH_NAMES_SHORT[m]);
-      const semLabel = currentSemester === 1 ? 'Jan \u2013 Jun' : 'Jul \u2013 Des';
+      semesterList.forEach(semItem => {
+        let total = 0;
+        let count = 0;
 
-      semesterTabs.style.display = 'flex';
-      zoomControls.style.display = 'flex';
-      emptyDiv.style.display = 'none';
-      chartsGrid.style.display = 'grid';
-      legendInfo.style.display = 'block';
+        filtered.forEach(item => {
+          const d = item.inputDate || item.startDate || (item.periodeBulan ? item.periodeBulan + '-01' : '');
+          if (!d || d.length < 7) return;
+          const recYear = parseInt(d.substring(0, 4), 10);
+          const recMonth = parseInt(d.substring(5, 7), 10);
+          if (isNaN(recYear) || isNaN(recMonth)) return;
 
-      PARAMETER_LIST.forEach((param, idx) => {
-        const dataPoints = semMonths.map(m => {
-          const info = monthlyData[m][param.id];
-          return info.count > 0 ? parseFloat((info.total / info.count).toFixed(4)) : null;
-        });
-        const hasData = dataPoints.some(v => v !== null);
-
-        const card = document.createElement('div');
-        card.className = 'single-chart-card';
-        card.innerHTML =
-          '<div class="chart-title">' +
-          '<span>' + param.name + ' <span style="font-weight:400;color:#64748b;font-size:11px;">(' + param.unit + ')</span></span>' +
-          '<div style="display:flex;align-items:center;gap:6px;">' +
-          '<div class="chart-btn-group">' +
-          '<button type="button" class="btn-chart-zoom" title="Zoom In" onclick="zoomChart(\'' + param.id + '\', 1.3)">+</button>' +
-          '<button type="button" class="btn-chart-zoom" title="Zoom Out" onclick="zoomChart(\'' + param.id + '\', 0.77)">−</button>' +
-          '<button type="button" class="btn-chart-zoom" title="Reset Zoom" onclick="resetChartZoom(\'' + param.id + '\')">&#8634;</button>' +
-          '</div>' +
-          '</div>' +
-          '</div>' +
-          '<div class="chart-container">' +
-          '<canvas id="chart_' + param.id + '"></canvas>' +
-          '</div>' +
-          (!hasData ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;pointer-events:none;">Tidak ada data ' + semLabel + '</div>' : '');
-        chartsGrid.appendChild(card);
-
-        const canvas = document.getElementById('chart_' + param.id);
-        if (!canvas) return;
-
-        // Skala Y diserahkan sepenuhnya ke Chart.js tanpa batas paksa.
-        // Pengguna zoom sendiri menggunakan tombol [+] [−] [↺].
-        const color = CHART_COLORS[idx % CHART_COLORS.length];
-
-        const datasets = [{
-          label: param.name + ' (' + param.unit + ')',
-          data: dataPoints,
-          borderColor: color,
-          backgroundColor: color + '20',
-          borderWidth: 2.5,
-          tension: 0.3,
-          pointRadius: 5,
-          pointHoverRadius: 7,
-          fill: false,
-          spanGaps: true
-        }];
-
-        const chartInst = new Chart(canvas.getContext('2d'), {
-          type: 'line',
-          data: { labels: semLabels, datasets },
-          options: {
-            animation: { duration: 0 },
-            animations: { colors: false, x: false },
-            transitions: {
-              active: { animation: { duration: 0 } },
-              resize: { animation: { duration: 0 } },
-              show: { animation: { duration: 0 } },
-              hide: { animation: { duration: 0 } }
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: { usePointStyle: true, padding: 8, font: { size: 10 } }
-              },
-              tooltip: {
-                backgroundColor: 'rgba(15,23,42,0.9)',
-                titleFont: { size: 12 }, bodyFont: { size: 11 }, padding: 10, cornerRadius: 6,
-                callbacks: {
-                  label: function (context) {
-                    const val = context.parsed.y;
-                    if (val === null || val === undefined) return context.dataset.label + ': -';
-                    return context.dataset.label + ': ' + fmtVal(Number(val));
-                  }
-                }
-              },
-              zoom: {
-                pan: { enabled: true, mode: 'y' },
-                zoom: {
-                  wheel: { enabled: false },
-                  pinch: { enabled: true },
-                  mode: 'y'
-                },
-                limits: {
-                  y: { min: 0, minRange: 0.0001 }
-                }
-              }
-            },
-            scales: {
-              x: {
-                title: { display: true, text: semLabel, font: { size: 11, weight: 'bold' } },
-                grid: { color: '#e2e8f0' }
-              },
-              y: {
-                type: 'linear',
-                min: 0,
-                title: { display: true, text: param.unit, font: { size: 11, weight: 'bold' } },
-                ticks: {
-                  maxTicksLimit: 6,
-                  callback: function (value) { return fmtVal(Number(value)); },
-                  color: '#475569',
-                  font: { size: 10 }
-                },
-                grid: { color: '#e2e8f0' }
-              }
+          const recSem = recMonth <= 6 ? 1 : 2;
+          if (recYear === semItem.year && recSem === semItem.sem) {
+            const rawVal = item.values && item.values[param.id];
+            const num = parseDecimal(rawVal);
+            if (num !== null && !isNaN(num)) {
+              total += num;
+              count++;
             }
           }
         });
 
-        chartInstances[param.id] = chartInst;
+        if (count > 0) {
+          const avg = parseFloat((total / count).toFixed(4));
+          semValues.push(avg);
+          semDataCounts.push(count);
+          allValues.push(avg);
+          if (param.maxVal !== null && avg > param.maxVal) {
+            maxExceeded = true;
+          }
+        } else {
+          semValues.push(null);
+          semDataCounts.push(0);
+        }
+      });
+
+      // Kontrol visibilitas UI
+      emptyDiv.style.display = 'none';
+      singleContainer.style.display = 'block';
+      legendInfo.style.display = 'block';
+
+      if (titleText) {
+        titleText.innerHTML = '&#128200; Grafik Parameter: ' + escapeHtml(param.name) + ' (' + escapeHtml(loc) + ' - Cerobong/Desa ' + escapeHtml(cerobong) + ' | ' + startYear + ' - ' + endYear + ')';
+      }
+
+      const paramTitle = document.getElementById('chartParamTitle');
+      if (paramTitle) {
+        paramTitle.innerHTML = escapeHtml(param.name) + ' <span style="font-weight:400;color:#64748b;font-size:13px;">(' + escapeHtml(activeUnit) + ')</span>';
+      }
+
+      const bakuMutuBadge = document.getElementById('chartBakuMutuBadge');
+      if (bakuMutuBadge) {
+        if (param.maxVal !== null) {
+          bakuMutuBadge.style.display = 'inline-block';
+          bakuMutuBadge.textContent = 'Baku Mutu Maks: ' + param.maxVal + ' ' + activeUnit;
+        } else {
+          bakuMutuBadge.style.display = 'none';
+        }
+      }
+
+      const complianceBadge = document.getElementById('chartComplianceBadge');
+      if (complianceBadge) {
+        if (allValues.length === 0) {
+          complianceBadge.className = 'max-badge';
+          complianceBadge.style.background = '#f1f5f9';
+          complianceBadge.style.color = '#64748b';
+          complianceBadge.textContent = 'Belum Ada Data Terukur';
+        } else if (param.maxVal !== null) {
+          if (maxExceeded) {
+            complianceBadge.className = 'max-badge badge-non-compliant';
+            complianceBadge.textContent = '⚠ Ada Semester Melebihi Baku Mutu';
+          } else {
+            complianceBadge.className = 'max-badge badge-compliant';
+            complianceBadge.textContent = '✔ Memenuhi Baku Mutu';
+          }
+        } else {
+          complianceBadge.className = 'max-badge';
+          complianceBadge.style.background = '#e0f2fe';
+          complianceBadge.style.color = '#0284c7';
+          complianceBadge.textContent = 'Standar Monitoring';
+        }
+      }
+
+      // Summary Stats Badges
+      const statsBadges = document.getElementById('chartStatsBadges');
+      if (statsBadges) {
+        if (allValues.length > 0) {
+          const sum = allValues.reduce((a, b) => a + b, 0);
+          const avg10Y = parseFloat((sum / allValues.length).toFixed(3));
+          const max10Y = Math.max(...allValues);
+          const min10Y = Math.min(...allValues);
+
+          statsBadges.innerHTML =
+            '<div class="stat-pill">Rata-rata 10 Thn: <strong>' + fmtVal(avg10Y) + ' ' + escapeHtml(activeUnit) + '</strong></div>' +
+            '<div class="stat-pill">Tertinggi (Max): <strong>' + fmtVal(max10Y) + ' ' + escapeHtml(activeUnit) + '</strong></div>' +
+            '<div class="stat-pill">Terendah (Min): <strong>' + fmtVal(min10Y) + ' ' + escapeHtml(activeUnit) + '</strong></div>' +
+            '<div class="stat-pill">Data Terisi: <strong>' + allValues.length + ' dari 20 Semester</strong></div>';
+        } else {
+          statsBadges.innerHTML = '<div class="stat-pill" style="color:#94a3b8;">Belum ada riwayat data pengukuran untuk ' + escapeHtml(param.name) + ' pada periode ' + startYear + ' - ' + endYear + '.</div>';
+        }
+      }
+
+      // Render 20-Semester Summary Table
+      const tableWrap = document.getElementById('chartSemesterTableWrap');
+      if (tableWrap) {
+        let tblHtml = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">' +
+          '<h4 style="font-size:13px; font-weight:700; color:#334155;">&#128196; Rincian Nilai 20 Semester (' + startYear + ' \u2013 ' + endYear + ')</h4>' +
+          '<small style="color:#64748b;">Total: 20 Semester (10 Tahun)</small>' +
+          '</div>' +
+          '<div style="overflow-x:auto; max-height:220px; border:1px solid #e2e8f0; border-radius:6px;">' +
+          '<table style="width:100%; border-collapse:collapse; font-size:12px; text-align:left;">' +
+          '<thead style="background:#f8fafc; border-bottom:1px solid #cbd5e1; position:sticky; top:0; z-index:1;">' +
+          '<tr>' +
+          '<th style="padding:6px 10px;">Semester</th>' +
+          '<th style="padding:6px 10px;">Periode Waktu</th>' +
+          '<th style="padding:6px 10px;">Rata-rata Pengukuran</th>' +
+          '<th style="padding:6px 10px;">Baku Mutu Maksimum</th>' +
+          '<th style="padding:6px 10px;">Status Kepatuhan</th>' +
+          '</tr>' +
+          '</thead>' +
+          '<tbody>';
+
+        semesterList.forEach((s, idx) => {
+          const val = semValues[idx];
+          const hasVal = (val !== null && val !== undefined);
+          const isOver = (hasVal && param.maxVal !== null && val > param.maxVal);
+          const statusText = !hasVal ? '<span style="color:#94a3b8;">- (Tidak Ada Data)</span>' : (isOver ? '<span style="color:#dc2626;font-weight:700;">⚠ Melebihi Baku Mutu</span>' : '<span style="color:#16a34a;font-weight:600;">✔ Memenuhi</span>');
+
+          tblHtml += '<tr style="border-bottom:1px solid #f1f5f9; background:' + (idx % 2 === 0 ? '#ffffff' : '#f8fafc') + ';">' +
+            '<td style="padding:5px 10px; font-weight:700; color:#0b5394;">' + s.label + '</td>' +
+            '<td style="padding:5px 10px; color:#475569;">' + s.fullTitle + '</td>' +
+            '<td style="padding:5px 10px; font-weight:600;' + (isOver ? 'color:#dc2626;' : '') + '">' + (hasVal ? fmtVal(val) + ' ' + escapeHtml(activeUnit) : '-') + '</td>' +
+            '<td style="padding:5px 10px; color:#64748b;">' + (param.maxVal !== null ? param.maxVal + ' ' + escapeHtml(activeUnit) : '-') + '</td>' +
+            '<td style="padding:5px 10px;">' + statusText + '</td>' +
+            '</tr>';
+        });
+
+        tblHtml += '</tbody></table></div>';
+        tableWrap.innerHTML = tblHtml;
+      }
+
+      // Siapkan Canvas Chart.js
+      const canvas = document.getElementById('activeParamChart');
+      if (!canvas) return;
+
+      const labels = semesterList.map(s => s.label);
+      const datasets = [];
+
+      // Dataset 1: Nilai Parameter Aktual (20 Semester)
+      datasets.push({
+        label: param.name + ' (' + activeUnit + ')',
+        data: semValues,
+        borderColor: '#0b5394',
+        backgroundColor: 'rgba(11, 83, 148, 0.08)',
+        borderWidth: 2.5,
+        tension: 0.25,
+        pointRadius: 5.5,
+        pointHoverRadius: 8,
+        pointBackgroundColor: function (ctx) {
+          const val = ctx.raw;
+          if (val !== null && param.maxVal !== null && val > param.maxVal) return '#dc2626';
+          return '#0b5394';
+        },
+        pointBorderColor: '#ffffff',
+        pointBorderWidth: 2,
+        fill: false,
+        spanGaps: true
+      });
+
+      // Dataset 2: Garis Batas Baku Mutu (Garis putus-putus merah)
+      if (param.maxVal !== null) {
+        datasets.push({
+          label: 'Batas Baku Mutu (' + param.maxVal + ' ' + activeUnit + ')',
+          data: Array(20).fill(param.maxVal),
+          borderColor: '#dc2626',
+          borderWidth: 2,
+          borderDash: [6, 4],
+          pointRadius: 0,
+          pointHoverRadius: 0,
+          fill: false
+        });
+      }
+
+      activeChartInstance = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: { labels: labels, datasets },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          animation: { duration: 250 },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { usePointStyle: true, padding: 12, font: { size: 12, weight: '600' } }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15,23,42,0.92)',
+              titleFont: { size: 13 },
+              bodyFont: { size: 12 },
+              padding: 12,
+              cornerRadius: 6,
+              callbacks: {
+                title: function (context) {
+                  const idx = context[0].dataIndex;
+                  return semesterList[idx] ? semesterList[idx].fullTitle : context[0].label;
+                },
+                label: function (context) {
+                  const val = context.parsed.y;
+                  if (val === null || val === undefined) return context.dataset.label + ': -';
+                  return context.dataset.label + ': ' + fmtVal(Number(val));
+                }
+              }
+            },
+            zoom: {
+              pan: { enabled: true, mode: 'y' },
+              zoom: {
+                wheel: { enabled: false },
+                pinch: { enabled: true },
+                mode: 'y'
+              },
+              limits: {
+                y: { min: 0, minRange: 0.0001 }
+              }
+            }
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Semester (Rentang 10 Tahun: ' + startYear + ' - ' + endYear + ')', font: { size: 12, weight: 'bold' } },
+              grid: { color: '#e2e8f0' },
+              ticks: { font: { size: 11, weight: '600' }, color: '#334155' }
+            },
+            y: {
+              type: 'linear',
+              min: 0,
+              title: { display: true, text: param.name + ' (' + activeUnit + ')', font: { size: 12, weight: 'bold' } },
+              ticks: {
+                maxTicksLimit: 7,
+                callback: function (value) { return fmtVal(Number(value)); },
+                color: '#475569',
+                font: { size: 11 }
+              },
+              grid: { color: '#e2e8f0' }
+            }
+          }
+        }
       });
     }
 
     function exportChartDataToExcel() {
       const loc = document.getElementById('chartLocation').value;
       const cerobong = document.getElementById('chartCerobong').value;
-      const year = document.getElementById('chartYear').value;
-      if (!loc || !cerobong || !year) { alert('Pilih Location, Kode Cerobong, dan Tahun terlebih dahulu.'); return; }
+      const paramId = document.getElementById('chartParameter').value;
+      const endYearVal = document.getElementById('chartEndYear').value;
+
+      if (!loc || !cerobong || !paramId || !endYearVal) {
+        alert('Silakan pilih Location, Kode Cerobong/Desa, Parameter Monitoring, dan Periode 10 Tahun terlebih dahulu.');
+        return;
+      }
+
+      const param = PARAMETER_LIST.find(p => p.id === paramId) || PARAMETER_LIST[0];
+      const endYear = parseInt(endYearVal, 10);
+      const startYear = endYear - 9;
 
       const filtered = databaseRecords.filter(item => {
-        const d = item.inputDate || item.startDate;
-        return item.location === loc && item.kodeCerobong === cerobong && d && d.substring(0, 4) === year;
+        return item.location === loc && String(item.kodeCerobong).trim() === String(cerobong).trim();
       });
-      if (filtered.length === 0) { alert('Tidak ada data untuk diekspor.'); return; }
 
-      const monthlyData = {};
-      for (let m = 0; m < 12; m++) {
-        monthlyData[m] = {};
-        PARAMETER_LIST.forEach(p => { monthlyData[m][p.id] = { total: 0, count: 0 }; });
+      const semesterList = [];
+      for (let y = startYear; y <= endYear; y++) {
+        semesterList.push({ year: y, sem: 1, label: y + ' S1', fullTitle: y + ' Semester 1 (Jan-Jun)' });
+        semesterList.push({ year: y, sem: 2, label: y + ' S2', fullTitle: y + ' Semester 2 (Jul-Des)' });
       }
-      filtered.forEach(item => {
-        const d = item.inputDate || item.startDate;
-        const month = parseInt(d.substring(5, 7), 10) - 1;
+
+      // Hitung semua parameter untuk 20 semester
+      const semParamAverages = {};
+      PARAMETER_LIST.forEach(p => {
+        semParamAverages[p.id] = [];
+      });
+
+      semesterList.forEach(semItem => {
         PARAMETER_LIST.forEach(p => {
-          const val = parseDecimal(item.values && item.values[p.id]);
-          if (val !== null && !isNaN(val)) { monthlyData[month][p.id].total += val; monthlyData[month][p.id].count += 1; }
+          let total = 0, count = 0;
+          filtered.forEach(item => {
+            const d = item.inputDate || item.startDate || (item.periodeBulan ? item.periodeBulan + '-01' : '');
+            if (!d || d.length < 7) return;
+            const recYear = parseInt(d.substring(0, 4), 10);
+            const recMonth = parseInt(d.substring(5, 7), 10);
+            if (isNaN(recYear) || isNaN(recMonth)) return;
+            const recSem = recMonth <= 6 ? 1 : 2;
+            if (recYear === semItem.year && recSem === semItem.sem) {
+              const num = parseDecimal(item.values && item.values[p.id]);
+              if (num !== null && !isNaN(num)) {
+                total += num;
+                count++;
+              }
+            }
+          });
+          semParamAverages[p.id].push(count > 0 ? parseFloat((total / count).toFixed(4)) : null);
         });
       });
 
       const wb = XLSX.utils.book_new();
-      [1, 2].forEach(sem => {
-        const semMonthIdxs = SEMESTER_MONTHS[sem];
-        const semName = sem === 1 ? 'Semester 1 (Jan-Jun)' : 'Semester 2 (Jul-Des)';
-        const wsData = [];
-        wsData.push(['Grafik Parameter Gas - ' + loc + ' / Cerobong ' + cerobong + ' / Tahun ' + year + ' / ' + semName]);
-        wsData.push(['Rata-rata nilai parameter per bulan | Baku Mutu sesuai regulasi']);
-        wsData.push([]);
-        wsData.push(['Bulan', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ')'), ...PARAMETER_LIST.map(p => 'Baku Mutu ' + p.name)]);
-        semMonthIdxs.forEach(m => {
-          const row = [INDO_MONTHS[m]];
-          PARAMETER_LIST.forEach(p => { const info = monthlyData[m][p.id]; row.push(info.count > 0 ? parseFloat((info.total / info.count).toFixed(4)) : ''); });
-          PARAMETER_LIST.forEach(p => { row.push(p.maxVal !== null ? p.maxVal : '-'); });
-          wsData.push(row);
-        });
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-        ws['!merges'] = [
-          { s: { r: 0, c: 0 }, e: { r: 0, c: PARAMETER_LIST.length * 2 } },
-          { s: { r: 1, c: 0 }, e: { r: 1, c: PARAMETER_LIST.length * 2 } }
-        ];
-        ws['!cols'] = [{ wch: 14 }, ...PARAMETER_LIST.map(() => ({ wch: 16 })), ...PARAMETER_LIST.map(() => ({ wch: 16 }))];
-        XLSX.utils.book_append_sheet(wb, ws, semName.substring(0, 31));
+
+      // Sheet 1: Grafik Parameter Terpilih (20 Semester)
+      const sheet1Data = [];
+      sheet1Data.push(['Laporan Pemantauan Kualitas Udara - ' + loc + ' / Cerobong-Desa ' + cerobong]);
+      sheet1Data.push(['Parameter: ' + param.name + ' (' + param.unit + ') | Periode: 10 Tahun (20 Semester: ' + startYear + ' - ' + endYear + ')']);
+      sheet1Data.push([]);
+      sheet1Data.push(['No', 'Semester', 'Periode Lengkap', param.name + ' (' + param.unit + ')', 'Baku Mutu Maksimum', 'Status Kepatuhan']);
+
+      semesterList.forEach((s, idx) => {
+        const val = semParamAverages[param.id][idx];
+        const hasVal = (val !== null && val !== undefined);
+        const isOver = (hasVal && param.maxVal !== null && val > param.maxVal);
+        const status = !hasVal ? 'Belum Ada Data' : (isOver ? 'Melebihi Baku Mutu' : 'Memenuhi Baku Mutu');
+        sheet1Data.push([
+          idx + 1,
+          s.label,
+          s.fullTitle,
+          hasVal ? val : '',
+          param.maxVal !== null ? param.maxVal : '-',
+          status
+        ]);
       });
 
-      const rawWsData = [['No', 'Location', 'Kode Cerobong', 'Tanggal Penginputan', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ')'), 'Waktu Input']];
+      const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+      ws1['!cols'] = [{ wch: 6 }, { wch: 14 }, { wch: 30 }, { wch: 20 }, { wch: 20 }, { wch: 25 }];
+      XLSX.utils.book_append_sheet(wb, ws1, ('Grafik_' + param.name).substring(0, 31));
+
+      // Sheet 2: Ringkasan Seluruh Parameter (20 Semester)
+      const sheet2Data = [];
+      sheet2Data.push(['Matriks Seluruh Parameter (20 Semester / 10 Tahun: ' + startYear + ' - ' + endYear + ') - ' + loc + ' / Cerobong-Desa ' + cerobong]);
+      sheet2Data.push([]);
+      sheet2Data.push(['Semester', 'Tahun', 'Periode', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ')')]);
+      semesterList.forEach((s, idx) => {
+        const row = [s.label, s.year, s.fullTitle];
+        PARAMETER_LIST.forEach(p => {
+          const val = semParamAverages[p.id][idx];
+          row.push(val !== null && val !== undefined ? val : '');
+        });
+        sheet2Data.push(row);
+      });
+
+      const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+      ws2['!cols'] = [{ wch: 14 }, { wch: 8 }, { wch: 28 }, ...PARAMETER_LIST.map(() => ({ wch: 16 }))];
+      XLSX.utils.book_append_sheet(wb, ws2, 'Matriks Semua Parameter');
+
+      // Sheet 3: Data Mentah
+      const rawWsData = [['No', 'Location', 'Kode Cerobong/Desa', 'Tanggal Penginputan', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ')'), 'Waktu Input']];
       filtered.forEach((record, index) => {
         rawWsData.push([
           index + 1, record.location, record.kodeCerobong, formatTanggalDisplay(record),
@@ -2003,14 +2320,17 @@
           record.timestamp
         ]);
       });
-      const ws2 = XLSX.utils.aoa_to_sheet(rawWsData);
-      ws2['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 15 }, { wch: 20 }, ...PARAMETER_LIST.map(() => ({ wch: 16 })), { wch: 20 }];
-      XLSX.utils.book_append_sheet(wb, ws2, 'Data Mentah');
-      XLSX.writeFile(wb, 'KLHK_Grafik_' + loc + '_Cerobong' + cerobong + '_' + year + '_' + new Date().toISOString().split('T')[0] + '.xlsx');
+      const ws3 = XLSX.utils.aoa_to_sheet(rawWsData);
+      ws3['!cols'] = [{ wch: 5 }, { wch: 15 }, { wch: 20 }, { wch: 20 }, ...PARAMETER_LIST.map(() => ({ wch: 16 })), { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, ws3, 'Data Mentah');
+
+      XLSX.writeFile(wb, 'KLHK_Grafik_' + loc + '_CerobongDesa_' + cerobong + '_' + startYear + '-' + endYear + '.xlsx');
     }
 
     document.addEventListener('DOMContentLoaded', async function () {
       renderParameterInputs();
+      populateChartParameterDropdown();
+      populateChartPeriodDropdown();
       setDefaultDates();
       await renderTableFromDatabase();
     });

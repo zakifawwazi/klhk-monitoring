@@ -72,7 +72,7 @@ if (
 
     echo json_encode([
         "success" => false,
-        "message" => "Location, kode cerobong dan tanggal wajib diisi"
+        "message" => "Location, kode cerobong/desa dan tanggal wajib diisi"
     ]);
 
     exit;
@@ -102,6 +102,11 @@ $parameters = [
     "hf",
     "so2",
     "no2",
+    "ox",
+    "nmhc",
+    "tsp",
+    "pm10",
+    "pm2_5",
     "co",
     "noc_as_ch4",
     "zn",
@@ -135,7 +140,12 @@ $paramMaxVal = [
     "hci"        => 40,
     "hf"         => 4,
     "so2"        => 1300,
-    "no2"        => 1600,
+    "no2"        => 400,
+    "ox"         => 350,
+    "nmhc"       => 320,
+    "tsp"        => 460,
+    "pm10"       => 150,
+    "pm2_5"      => 110,
     "co"         => 6000,
     "noc_as_ch4" => 200,
     "zn"         => 150,
@@ -267,6 +277,11 @@ try {
             hf,
             so2,
             no2,
+            ox,
+            nmhc,
+            tsp,
+            pm10,
+            pm2_5,
             co,
             noc_as_ch4,
             zn,
@@ -288,8 +303,8 @@ try {
         )
         VALUES
         (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     ";
 
@@ -300,13 +315,18 @@ try {
     }
 
     $stmt->bind_param(
-        "iddddddddddddddddddddddd",
+        "idddddddddddddddddddddddddddd",
         $monitoringId,
         $values["dust"],
         $values["hci"],
         $values["hf"],
         $values["so2"],
         $values["no2"],
+        $values["ox"],
+        $values["nmhc"],
+        $values["tsp"],
+        $values["pm10"],
+        $values["pm2_5"],
         $values["co"],
         $values["noc_as_ch4"],
         $values["zn"],
