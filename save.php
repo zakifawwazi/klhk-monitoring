@@ -192,6 +192,9 @@ foreach ($parameters as $parameter) {
 
     // Validasi batas maksimum per parameter
     $maxVal = $paramMaxVal[$parameter] ?? null;
+    if ($parameter === 'no2' && isset($units['no2']) && ($units['no2'] === 'mg/Nm³' || $units['no2'] === 'mg/Nm3')) {
+        $maxVal = 1000;
+    }
     if ($maxVal !== null && $value > $maxVal) {
         http_response_code(400);
         echo json_encode([

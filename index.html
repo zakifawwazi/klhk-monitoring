@@ -1149,7 +1149,7 @@
 
     <div class="chart-section" id="chartSection">
       <div class="chart-header">
-        <h3 id="chartTitleText">&#128200; Grafik Parameter per Lokasi &amp; Cerobong/Desa (20 Semester / 10 Tahun)</h3>
+        <h3 id="chartTitleText">&#128200; Grafik Parameter per Lokasi &amp; Cerobong/Desa</h3>
         <button class="btn btn-success" onclick="exportChartDataToExcel()">&#128229; Export Grafik ke Excel</button>
       </div>
 
@@ -1171,22 +1171,28 @@
             <option value="">-- Pilih Cerobong/Desa --</option>
           </select>
         </div>
-        <div class="filter-field" style="flex: 1.2; min-width: 220px;">
+        <div class="filter-field" style="flex: 1.2; min-width: 200px;">
           <label for="chartParameter">Parameter Monitoring</label>
           <select id="chartParameter" onchange="renderCharts()">
             <option value="">-- Pilih Parameter --</option>
           </select>
         </div>
-        <div class="filter-field" style="flex: 1.2; min-width: 200px;">
-          <label for="chartEndYear">Periode 10 Tahun (20 Semester)</label>
-          <select id="chartEndYear" onchange="renderCharts()">
-            <option value="">-- Pilih Periode --</option>
-          </select>
+        <div class="filter-field" style="min-width: 220px;">
+          <label>Periode</label>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <select id="chartStartYear" onchange="onChartPeriodChange('start')" title="Pilih Tahun Mulai"
+              style="flex: 1; min-width: 90px;">
+            </select>
+            <span style="font-size: 13px; font-weight: 600; color: #64748b; white-space: nowrap;">s/d</span>
+            <select id="chartEndYear" onchange="onChartPeriodChange('end')" title="Pilih Tahun Akhir"
+              style="flex: 1; min-width: 90px;">
+            </select>
+          </div>
         </div>
       </div>
 
       <div class="chart-empty" id="chartEmpty">
-        Pilih Location, Kode Cerobong/Desa, Parameter, dan Periode 10 Tahun untuk menampilkan grafik parameter.
+        Pilih Location, Kode Cerobong/Desa, Parameter Monitoring, dan Periode untuk menampilkan grafik parameter.
       </div>
 
       <div id="chartSingleContainer" style="display:none;">
@@ -1230,8 +1236,7 @@
       </div>
 
       <div class="chart-legend-info" id="chartLegendInfo" style="display:none; margin-top: 14px;">
-        💡 Grafik menampilkan pergerakan nilai rata-rata per semester selama rentang 10 tahun (total 20 semester). Garis
-        putus-putus merah menandakan batas baku mutu maksimum yang diizinkan.
+        Grafik menampilkan pergerakan nilai rata-rata
       </div>
     </div>
 
@@ -1252,35 +1257,55 @@
     const API = { save: 'save.php', get: 'get.php', delete: 'delete.php' };
 
     const PARAMETER_LIST = [
-      { id: "no2", name: "NO2", unit: "\u03bcg/m\u00b3", maxVal: 400, isAmbient: true },
-      { id: "ox", name: "Ox", unit: "\u03bcg/m\u00b3", maxVal: 350, isAmbient: true },
-      { id: "nmhc", name: "NMHC", unit: "\u03bcg/m\u00b3", maxVal: 320, isAmbient: true },
-      { id: "tsp", name: "TSP", unit: "\u03bcg/m\u00b3", maxVal: 460, isAmbient: true },
-      { id: "pm10", name: "PM10", unit: "\u03bcg/m\u00b3", maxVal: 150, isAmbient: true },
-      { id: "pm2_5", name: "PM 2,5", unit: "\u03bcg/m\u00b3", maxVal: 110, isAmbient: true },
-      { id: "dust", name: "Dust", unit: "mg/Nm\u00b3", maxVal: 130 },
-      { id: "hci", name: "HCI", unit: "mg/Nm\u00b3", maxVal: 40 },
-      { id: "hf", name: "HF", unit: "mg/Nm\u00b3", maxVal: 4 },
-      { id: "so2", name: "SO2", unit: "mg/Nm\u00b3", maxVal: 1300 },
-      { id: "co", name: "CO", unit: "mg/Nm\u00b3", maxVal: 6000 },
-      { id: "noc_as_ch4", name: "NOC as CH4", unit: "mg/Nm\u00b3", maxVal: 200 },
-      { id: "zn", name: "Zn", unit: "mg/Nm\u00b3", maxVal: 150 },
-      { id: "hg", name: "Hg", unit: "mg/Nm\u00b3", maxVal: 0.4 },
-      { id: "cd", name: "Cd", unit: "mg/Nm\u00b3", maxVal: 0.4 },
-      { id: "tl", name: "Tl", unit: "mg/Nm\u00b3", maxVal: 0.4 },
-      { id: "sb", name: "Sb", unit: "mg/Nm\u00b3", maxVal: 1 },
-      { id: "arsenic", name: "As", unit: "mg/Nm\u00b3", maxVal: 2 },
-      { id: "cr", name: "Cr", unit: "mg/Nm\u00b3", maxVal: 2 },
-      { id: "co_metal", name: "Co", unit: "mg/Nm\u00b3", maxVal: 1 },
-      { id: "cu", name: "Cu", unit: "mg/Nm\u00b3", maxVal: 1 },
-      { id: "pb", name: "Pb", unit: "mg/Nm\u00b3", maxVal: 10 },
-      { id: "mn", name: "Mn", unit: "mg/Nm\u00b3", maxVal: 10 },
-      { id: "ni", name: "Ni", unit: "mg/Nm\u00b3", maxVal: 1 },
-      { id: "v", name: "V", unit: "mg/Nm\u00b3", maxVal: 1 },
-      { id: "be", name: "Be", unit: "mg/Nm\u00b3", maxVal: 0.2 },
-      { id: "se", name: "Se", unit: "mg/Nm\u00b3", maxVal: 2 },
-      { id: "pcdd_pcdf", name: "PCDD/PCDF", unit: "ng/Nm\u00b3", maxVal: 0.2 }
+      { id: "pm10", name: "PM10", unit: "\u03bcg/m\u00b3", bakuMutu: 75, maxVal: 150, isAmbient: true },
+      { id: "pm2_5", name: "PM 2,5", unit: "\u03bcg/m\u00b3", bakuMutu: 55, maxVal: 110, isAmbient: true },
+      { id: "tsp", name: "TSP", unit: "\u03bcg/m\u00b3", bakuMutu: 230, maxVal: 460, isAmbient: true },
+      { id: "no2", name: "NO2", unit: "\u03bcg/m\u00b3", bakuMutu: 200, bakuMutuMg: 800, maxVal: 400, maxValMg: 1000 },
+      { id: "ox", name: "Ox", unit: "\u03bcg/m\u00b3", bakuMutu: 150, maxVal: 350 },
+      { id: "nmhc", name: "NMHC", unit: "\u03bcg/m\u00b3", bakuMutu: 160, maxVal: 320 },
+      { id: "dust", name: "Dust", unit: "mg/Nm\u00b3", bakuMutu: 65, maxVal: 130 },
+      { id: "hci", name: "HCI", unit: "mg/Nm\u00b3", bakuMutu: 20, maxVal: 40 },
+      { id: "hf", name: "HF", unit: "mg/Nm\u00b3", bakuMutu: 2, maxVal: 4 },
+      { id: "so2", name: "SO2", unit: "mg/Nm\u00b3", bakuMutu: 650, maxVal: 1300 },
+      { id: "co", name: "CO", unit: "mg/Nm\u00b3", bakuMutu: 3000, maxVal: 6000 },
+      { id: "noc_as_ch4", name: "NOC as CH4", unit: "mg/Nm\u00b3", bakuMutu: 100, maxVal: 200 },
+      { id: "zn", name: "Zn", unit: "mg/Nm\u00b3", bakuMutu: 50, maxVal: 150 },
+      { id: "hg", name: "Hg", unit: "mg/Nm\u00b3", bakuMutu: 0.2, maxVal: 0.4 },
+      { id: "cd", name: "Cd", unit: "mg/Nm\u00b3", bakuMutu: 0.2, maxVal: 0.4 },
+      { id: "tl", name: "Tl", unit: "mg/Nm\u00b3", bakuMutu: 0.2, maxVal: 0.4 },
+      { id: "sb", name: "Sb", unit: "mg/Nm\u00b3", bakuMutu: 0.5, maxVal: 1 },
+      { id: "arsenic", name: "As", unit: "mg/Nm\u00b3", bakuMutu: 1, maxVal: 2 },
+      { id: "cr", name: "Cr", unit: "mg/Nm\u00b3", bakuMutu: 1, maxVal: 2 },
+      { id: "co_metal", name: "Co", unit: "mg/Nm\u00b3", bakuMutu: 0.5, maxVal: 1 },
+      { id: "cu", name: "Cu", unit: "mg/Nm\u00b3", bakuMutu: 0.5, maxVal: 1 },
+      { id: "pb", name: "Pb", unit: "mg/Nm\u00b3", bakuMutu: 5, maxVal: 10 },
+      { id: "mn", name: "Mn", unit: "mg/Nm\u00b3", bakuMutu: 5, maxVal: 10 },
+      { id: "ni", name: "Ni", unit: "mg/Nm\u00b3", bakuMutu: 0.5, maxVal: 1 },
+      { id: "v", name: "V", unit: "mg/Nm\u00b3", bakuMutu: 0.5, maxVal: 1 },
+      { id: "be", name: "Be", unit: "mg/Nm\u00b3", bakuMutu: 0.1, maxVal: 0.2 },
+      { id: "se", name: "Se", unit: "mg/Nm\u00b3", bakuMutu: 1, maxVal: 2 },
+      { id: "pcdd_pcdf", name: "PCDD/PCDF", unit: "ng/Nm\u00b3", bakuMutu: 0.1, maxVal: 0.2 }
     ];
+
+    function getParamBakuMutu(paramId, unit) {
+      const param = PARAMETER_LIST.find(p => p.id === paramId);
+      if (!param) return null;
+      if (param.id === 'no2') {
+        if (unit === 'mg/Nm³' || unit === 'mg/Nm\u00b3') return param.bakuMutuMg !== undefined ? param.bakuMutuMg : 800;
+        return param.bakuMutu !== undefined ? param.bakuMutu : 200;
+      }
+      return param.bakuMutu !== undefined ? param.bakuMutu : param.maxVal;
+    }
+
+    function getParamGraphMax(paramId, unit) {
+      const param = PARAMETER_LIST.find(p => p.id === paramId);
+      if (!param) return null;
+      if (param.id === 'no2') {
+        if (unit === 'mg/Nm³' || unit === 'mg/Nm\u00b3') return param.maxValMg !== undefined ? param.maxValMg : 1000;
+        return param.maxVal !== undefined ? param.maxVal : 400;
+      }
+      return param.maxVal !== undefined ? param.maxVal : (param.bakuMutu ? param.bakuMutu * 2 : null);
+    }
 
     let databaseRecords = [];
     let filteredRecords = [];
@@ -1353,13 +1378,15 @@
       PARAMETER_LIST.forEach(param => {
         const card = document.createElement('div');
         card.className = 'param-card';
-        const maxHint = param.maxVal !== null ? 'Maks: ' + param.maxVal : 'Tidak ada batas';
-        const placeholderText = param.maxVal !== null ? '0 \u2013 ' + param.maxVal : 'contoh: 0,05';
+        const bm = getParamBakuMutu(param.id, param.unit);
+        const gMax = getParamGraphMax(param.id, param.unit);
+        const maxHint = bm !== null ? 'Baku Mutu: ' + bm + ' ' + param.unit : 'Tidak ada batas';
+        const placeholderText = gMax !== null ? '0 \u2013 ' + gMax : 'contoh: 0,05';
         card.innerHTML =
           '<div class="param-card-header">' +
           '<span class="param-name">' + param.name + (param.isAmbient ? ' <span style="font-size:10px;background:#e0f2fe;color:#0369a1;padding:1px 5px;border-radius:3px;font-weight:600;">Ambien</span>' : '') + '</span>' +
           '<div class="param-unit-wrap">' +
-          '<select id="unit_' + param.id + '" data-id="' + param.id + '" class="param-unit-select" title="Pilih satuan untuk ' + param.name + '">' +
+          '<select id="unit_' + param.id + '" data-id="' + param.id + '" class="param-unit-select" title="Pilih satuan untuk ' + param.name + '" onchange="onParamUnitChange(\'' + param.id + '\')">' +
           '<option value="\u03bcg/m\u00b3"' + (param.unit === '\u03bcg/m\u00b3' ? ' selected' : '') + '>\u03bcg/m\u00b3</option>' +
           '<option value="mg/Nm\u00b3"' + (param.unit === 'mg/Nm\u00b3' ? ' selected' : '') + '>mg/Nm\u00b3</option>' +
           '<option value="ng/Nm\u00b3"' + (param.unit === 'ng/Nm\u00b3' ? ' selected' : '') + '>ng/Nm\u00b3</option>' +
@@ -1368,18 +1395,40 @@
           '</div>' +
           '</div>' +
           '<div class="param-input-wrap">' +
-          '<input type="text" inputmode="decimal" id="param_' + param.id + '" data-id="' + param.id + '" data-name="' + param.name + '" data-max="' + (param.maxVal !== null ? param.maxVal : '') + '" placeholder="' + placeholderText + '" class="param-number-input" autocomplete="off" oninput="handleParamInput(this)">' +
+          '<input type="text" inputmode="decimal" id="param_' + param.id + '" data-id="' + param.id + '" data-name="' + param.name + '" placeholder="' + placeholderText + '" class="param-number-input" autocomplete="off" oninput="handleParamInput(this)">' +
           '</div>' +
-          '<div class="param-max-hint">' + maxHint + '</div>';
+          '<div class="param-max-hint" id="hint_' + param.id + '">' + maxHint + '</div>';
         grid.appendChild(card);
       });
+    }
+
+    function onParamUnitChange(paramId) {
+      const param = PARAMETER_LIST.find(p => p.id === paramId);
+      if (!param) return;
+      const unitSel = document.getElementById('unit_' + paramId);
+      const activeUnit = unitSel ? unitSel.value : param.unit;
+      const bm = getParamBakuMutu(paramId, activeUnit);
+      const gMax = getParamGraphMax(paramId, activeUnit);
+
+      const hintEl = document.getElementById('hint_' + paramId);
+      if (hintEl) {
+        hintEl.textContent = bm !== null ? 'Baku Mutu: ' + bm + ' ' + activeUnit : 'Tidak ada batas';
+      }
+      const inputEl = document.getElementById('param_' + paramId);
+      if (inputEl) {
+        inputEl.placeholder = gMax !== null ? '0 \u2013 ' + gMax : 'contoh: 0,05';
+        validateInput(inputEl);
+      }
     }
 
     function setAllUnits(unitVal) {
       if (!unitVal) return;
       PARAMETER_LIST.forEach(param => {
         const sel = document.getElementById('unit_' + param.id);
-        if (sel) sel.value = unitVal;
+        if (sel) {
+          sel.value = unitVal;
+          onParamUnitChange(param.id);
+        }
       });
     }
 
@@ -1394,7 +1443,10 @@
 
     function getParamMax(paramId) {
       const param = PARAMETER_LIST.find(p => p.id === paramId);
-      return param ? param.maxVal : null;
+      if (!param) return null;
+      const unitSel = document.getElementById('unit_' + paramId);
+      const activeUnit = unitSel ? unitSel.value : param.unit;
+      return getParamGraphMax(paramId, activeUnit);
     }
 
     function handleParamInput(input) {
@@ -1414,7 +1466,9 @@
       if (clean === '') { input.classList.remove('has-value', 'invalid'); return; }
       const val = parseFloat(clean);
       const paramId = input.dataset.id;
-      const maxVal = getParamMax(paramId);
+      const unitSel = document.getElementById('unit_' + paramId);
+      const activeUnit = unitSel ? unitSel.value : null;
+      const maxVal = getParamGraphMax(paramId, activeUnit);
       let isInvalid = isNaN(val) || val < 0;
       if (!isInvalid && maxVal !== null) isInvalid = val > maxVal;
       if (isInvalid) {
@@ -1704,15 +1758,18 @@
         const val = item.values && item.values[param.id] !== null && item.values[param.id] !== undefined ? item.values[param.id] : '-';
         const unit = (item.units && item.units[param.id]) || param.unit;
         const displayVal = (val !== '-' && val !== null && val !== undefined) ? String(val).replace('.', ',') : '-';
-        const maxInfo = param.maxVal !== null ? 'Maks: ' + param.maxVal : '';
+        const bm = getParamBakuMutu(param.id, unit);
+        const maxInfo = bm !== null ? 'Baku Mutu: ' + bm + ' ' + escapeHtml(unit) : '';
+        const numVal = parseDecimal(val);
+        const isOver = (numVal !== null && bm !== null && numVal > bm);
         html +=
-          '<div style="background:#f8fafc;padding:8px 10px;border-radius:4px;border:1px solid #e2e8f0;font-size:12.5px;">' +
+          '<div style="background:#f8fafc;padding:8px 10px;border-radius:4px;border:1px solid ' + (isOver ? '#fca5a5' : '#e2e8f0') + ';font-size:12.5px;">' +
           '<div style="color:#64748b;font-size:11px;display:flex;justify-content:space-between;align-items:center;">' +
           '<span>' + param.name + (param.isAmbient ? ' <span style="color:#0284c7;font-weight:600;">(Ambien)</span>' : '') + '</span>' +
           '<span style="background:#e2e8f0;color:#334155;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:600;">' + escapeHtml(unit) + '</span>' +
           '</div>' +
-          '<div style="font-weight:700;color:#0b5394;font-size:14px;margin-top:4px;">' + displayVal + '</div>' +
-          (maxInfo ? '<div style="font-size:10px;color:#94a3b8;">' + maxInfo + '</div>' : '') +
+          '<div style="font-weight:700;color:' + (isOver ? '#dc2626' : '#0b5394') + ';font-size:14px;margin-top:4px;">' + displayVal + '</div>' +
+          (maxInfo ? '<div style="font-size:10px;color:' + (isOver ? '#dc2626' : '#94a3b8') + ';">' + maxInfo + (isOver ? ' (Melebihi)' : '') + '</div>' : '') +
           '</div>';
       });
 
@@ -1758,7 +1815,7 @@
     function exportToExcel() {
       if (databaseRecords.length === 0) { alert('Tidak ada data untuk diekspor!'); return; }
       const wsData = [];
-      wsData.push(['No', 'Location', 'Kode Cerobong/Desa', 'Tanggal Penginputan', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ') [Maks: ' + (p.maxVal !== null ? p.maxVal : '-') + ']'), 'Waktu Input']);
+      wsData.push(['No', 'Location', 'Kode Cerobong/Desa', 'Tanggal Penginputan', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ') [Baku Mutu: ' + (p.bakuMutu !== undefined ? p.bakuMutu : '-') + ']'), 'Waktu Input']);
       databaseRecords.forEach((record, index) => {
         wsData.push([
           index + 1, record.location, record.kodeCerobong, formatTanggalDisplay(record),
@@ -1789,20 +1846,18 @@
     function populateChartParameterDropdown() {
       const select = document.getElementById('chartParameter');
       if (!select) return;
-      const currentVal = select.value || 'no2';
+      const currentVal = select.value || (PARAMETER_LIST.find(p => p.isAmbient) ? PARAMETER_LIST.find(p => p.isAmbient).id : 'pm10');
       let html = '';
 
-      html += '<optgroup label="Parameter Udara Ambien (Sesuai Regulasi)">';
+      html += '<optgroup label="Parameter Udara Ambien">';
       PARAMETER_LIST.filter(p => p.isAmbient).forEach(p => {
-        const limitText = p.maxVal !== null ? ' [Maks: ' + p.maxVal + ' ' + p.unit + ']' : '';
-        html += '<option value="' + p.id + '"' + (p.id === currentVal ? ' selected' : '') + '>' + p.name + limitText + '</option>';
+        html += '<option value="' + p.id + '"' + (p.id === currentVal ? ' selected' : '') + '>' + p.name + '</option>';
       });
       html += '</optgroup>';
 
-      html += '<optgroup label="Parameter Emisi Lainnya">';
+      html += '<optgroup label="Parameter Emisi & Lainnya">';
       PARAMETER_LIST.filter(p => !p.isAmbient).forEach(p => {
-        const limitText = p.maxVal !== null ? ' [Maks: ' + p.maxVal + ' ' + p.unit + ']' : '';
-        html += '<option value="' + p.id + '"' + (p.id === currentVal ? ' selected' : '') + '>' + p.name + limitText + '</option>';
+        html += '<option value="' + p.id + '"' + (p.id === currentVal ? ' selected' : '') + '>' + p.name + '</option>';
       });
       html += '</optgroup>';
 
@@ -1810,29 +1865,77 @@
     }
 
     function populateChartPeriodDropdown() {
-      const periodSelect = document.getElementById('chartEndYear');
-      if (!periodSelect) return;
-      const currentVal = periodSelect.value;
-      const currentYear = new Date().getFullYear();
+      const startSelect = document.getElementById('chartStartYear');
+      const endSelect = document.getElementById('chartEndYear');
+      if (!startSelect || !endSelect) return;
 
+      const currentYear = new Date().getFullYear();
       let maxYear = currentYear;
+      let minYear = currentYear - 10;
+
       databaseRecords.forEach(item => {
         const d = item.inputDate || item.startDate;
         if (d && d.length >= 4) {
           const y = parseInt(d.substring(0, 4), 10);
-          if (!isNaN(y) && y > maxYear) maxYear = y;
+          if (!isNaN(y)) {
+            if (y > maxYear) maxYear = y;
+            if (y < minYear) minYear = y;
+          }
         }
       });
 
-      let html = '';
-      for (let i = 0; i < 5; i++) {
-        const endY = maxYear - i;
-        const startY = endY - 9;
-        const label = startY + ' \u2013 ' + endY + ' (10 Tahun / 20 Semester)';
-        const isSelected = (currentVal ? String(endY) === currentVal : i === 0);
-        html += '<option value="' + endY + '"' + (isSelected ? ' selected' : '') + '>' + label + '</option>';
+      const fromY = Math.min(2015, minYear - 2);
+      const toY = Math.max(2030, maxYear + 2);
+
+      const savedStart = startSelect.value ? parseInt(startSelect.value, 10) : null;
+      const savedEnd = endSelect.value ? parseInt(endSelect.value, 10) : null;
+
+      const defaultEnd = maxYear;
+      const defaultStart = Math.max(fromY, defaultEnd - 9);
+
+      const activeStart = savedStart || defaultStart;
+      const activeEnd = savedEnd || defaultEnd;
+
+      let startHtml = '';
+      let endHtml = '';
+
+      for (let y = fromY; y <= toY; y++) {
+        startHtml += '<option value="' + y + '"' + (y === activeStart ? ' selected' : '') + '>' + y + '</option>';
+        endHtml += '<option value="' + y + '"' + (y === activeEnd ? ' selected' : '') + '>' + y + '</option>';
       }
-      periodSelect.innerHTML = html;
+
+      startSelect.innerHTML = startHtml;
+      endSelect.innerHTML = endHtml;
+    }
+
+    function onChartPeriodChange(changed) {
+      const startSelect = document.getElementById('chartStartYear');
+      const endSelect = document.getElementById('chartEndYear');
+      if (!startSelect || !endSelect) return;
+
+      let startY = parseInt(startSelect.value, 10);
+      let endY = parseInt(endSelect.value, 10);
+      if (isNaN(startY) || isNaN(endY)) return;
+
+      if (changed === 'start') {
+        if (startY > endY) {
+          endSelect.value = startY;
+          endY = startY;
+        }
+        if (endY - startY + 1 > 10) {
+          endSelect.value = startY + 9;
+        }
+      } else {
+        if (endY < startY) {
+          startSelect.value = endY;
+          startY = endY;
+        }
+        if (endY - startY + 1 > 10) {
+          startSelect.value = endY - 9;
+        }
+      }
+
+      renderCharts();
     }
 
     function onChartLocationChange() {
@@ -1909,7 +2012,8 @@
       const loc = document.getElementById('chartLocation').value;
       const cerobong = document.getElementById('chartCerobong').value;
       const paramId = document.getElementById('chartParameter').value;
-      const endYearVal = document.getElementById('chartEndYear').value;
+      const startYearVal = document.getElementById('chartStartYear') ? document.getElementById('chartStartYear').value : '';
+      const endYearVal = document.getElementById('chartEndYear') ? document.getElementById('chartEndYear').value : '';
 
       const singleContainer = document.getElementById('chartSingleContainer');
       const emptyDiv = document.getElementById('chartEmpty');
@@ -1921,20 +2025,20 @@
         activeChartInstance = null;
       }
 
-      if (!loc || !cerobong || !paramId || !endYearVal) {
+      if (!loc || !cerobong || !paramId || !startYearVal || !endYearVal) {
         if (singleContainer) singleContainer.style.display = 'none';
         if (emptyDiv) {
           emptyDiv.style.display = 'flex';
-          emptyDiv.textContent = 'Pilih Location, Kode Cerobong/Desa, Parameter Monitoring, dan Periode 10 Tahun untuk menampilkan grafik parameter.';
+          emptyDiv.textContent = 'Pilih Location, Kode Cerobong/Desa, Parameter Monitoring, dan Periode untuk menampilkan grafik parameter.';
         }
         if (legendInfo) legendInfo.style.display = 'none';
-        if (titleText) titleText.innerHTML = '&#128200; Grafik Parameter per Lokasi &amp; Cerobong/Desa (20 Semester / 10 Tahun)';
+        if (titleText) titleText.innerHTML = '&#128200; Grafik Parameter per Lokasi &amp; Cerobong/Desa';
         return;
       }
 
       const param = PARAMETER_LIST.find(p => p.id === paramId) || PARAMETER_LIST[0];
+      const startYear = parseInt(startYearVal, 10);
       const endYear = parseInt(endYearVal, 10);
-      const startYear = endYear - 9;
 
       // Filter data sesuai Location & Kode Cerobong/Desa
       const filtered = databaseRecords.filter(item => {
@@ -1952,9 +2056,7 @@
       const semValues = [];
       const semDataCounts = [];
       let allValues = [];
-      let maxExceeded = false;
-
-      // Ambil unit yang digunakan (default dari param, atau jika ada data dengan unit custom)
+      let maxExceede      // Ambil unit yang digunakan (default dari param, atau jika ada data dengan unit custom)
       let activeUnit = param.unit;
       for (let i = 0; i < filtered.length; i++) {
         if (filtered[i].units && filtered[i].units[param.id]) {
@@ -1962,6 +2064,9 @@
           break;
         }
       }
+
+      const bakuMutuVal = getParamBakuMutu(param.id, activeUnit);
+      const graphMaxVal = getParamGraphMax(param.id, activeUnit);
 
       semesterList.forEach(semItem => {
         let total = 0;
@@ -1990,7 +2095,7 @@
           semValues.push(avg);
           semDataCounts.push(count);
           allValues.push(avg);
-          if (param.maxVal !== null && avg > param.maxVal) {
+          if (bakuMutuVal !== null && avg > bakuMutuVal) {
             maxExceeded = true;
           }
         } else {
@@ -2005,7 +2110,7 @@
       legendInfo.style.display = 'block';
 
       if (titleText) {
-        titleText.innerHTML = '&#128200; Grafik Parameter: ' + escapeHtml(param.name) + ' (' + escapeHtml(loc) + ' - Cerobong/Desa ' + escapeHtml(cerobong) + ' | ' + startYear + ' - ' + endYear + ')';
+        titleText.innerHTML = '&#128200; Grafik Parameter: ' + escapeHtml(param.name) + ' (' + escapeHtml(loc) + ' - Cerobong/Desa ' + escapeHtml(cerobong) + ' | ' + startYear + ' s/d ' + endYear + ')';
       }
 
       const paramTitle = document.getElementById('chartParamTitle');
@@ -2015,9 +2120,9 @@
 
       const bakuMutuBadge = document.getElementById('chartBakuMutuBadge');
       if (bakuMutuBadge) {
-        if (param.maxVal !== null) {
+        if (bakuMutuVal !== null) {
           bakuMutuBadge.style.display = 'inline-block';
-          bakuMutuBadge.textContent = 'Baku Mutu Maks: ' + param.maxVal + ' ' + activeUnit;
+          bakuMutuBadge.textContent = 'Baku Mutu: ' + bakuMutuVal + ' ' + activeUnit;
         } else {
           bakuMutuBadge.style.display = 'none';
         }
@@ -2030,7 +2135,7 @@
           complianceBadge.style.background = '#f1f5f9';
           complianceBadge.style.color = '#64748b';
           complianceBadge.textContent = 'Belum Ada Data Terukur';
-        } else if (param.maxVal !== null) {
+        } else if (bakuMutuVal !== null) {
           if (maxExceeded) {
             complianceBadge.className = 'max-badge badge-non-compliant';
             complianceBadge.textContent = '⚠ Ada Semester Melebihi Baku Mutu';
@@ -2056,12 +2161,13 @@
           const min10Y = Math.min(...allValues);
 
           statsBadges.innerHTML =
-            '<div class="stat-pill">Rata-rata 10 Thn: <strong>' + fmtVal(avg10Y) + ' ' + escapeHtml(activeUnit) + '</strong></div>' +
+            '<div class="stat-pill">Rata-rata: <strong>' + fmtVal(avg10Y) + ' ' + escapeHtml(activeUnit) + '</strong></div>' +
+            '<div class="stat-pill">Baku Mutu: <strong>' + (bakuMutuVal !== null ? bakuMutuVal + ' ' + escapeHtml(activeUnit) : '-') + '</strong></div>' +
             '<div class="stat-pill">Tertinggi (Max): <strong>' + fmtVal(max10Y) + ' ' + escapeHtml(activeUnit) + '</strong></div>' +
             '<div class="stat-pill">Terendah (Min): <strong>' + fmtVal(min10Y) + ' ' + escapeHtml(activeUnit) + '</strong></div>' +
-            '<div class="stat-pill">Data Terisi: <strong>' + allValues.length + ' dari 20 Semester</strong></div>';
+            '<div class="stat-pill">Data Terisi: <strong>' + allValues.length + ' dari ' + semesterList.length + ' Semester</strong></div>';
         } else {
-          statsBadges.innerHTML = '<div class="stat-pill" style="color:#94a3b8;">Belum ada riwayat data pengukuran untuk ' + escapeHtml(param.name) + ' pada periode ' + startYear + ' - ' + endYear + '.</div>';
+          statsBadges.innerHTML = '<div class="stat-pill" style="color:#94a3b8;">Belum ada riwayat data pengukuran untuk ' + escapeHtml(param.name) + ' pada periode ' + startYear + ' s/d ' + endYear + '.</div>';
         }
       }
 
@@ -2069,8 +2175,8 @@
       const tableWrap = document.getElementById('chartSemesterTableWrap');
       if (tableWrap) {
         let tblHtml = '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; flex-wrap:wrap; gap:6px;">' +
-          '<h4 style="font-size:13px; font-weight:700; color:#334155;">&#128196; Rincian Nilai 20 Semester (' + startYear + ' \u2013 ' + endYear + ')</h4>' +
-          '<small style="color:#64748b;">Total: 20 Semester (10 Tahun)</small>' +
+          '<h4 style="font-size:13px; font-weight:700; color:#334155;">&#128196; Rincian Nilai Semester (' + startYear + ' \u2013 ' + endYear + ')</h4>' +
+          '<small style="color:#64748b;">Total: ' + semesterList.length + ' Semester</small>' +
           '</div>' +
           '<div style="overflow-x:auto; max-height:220px; border:1px solid #e2e8f0; border-radius:6px;">' +
           '<table style="width:100%; border-collapse:collapse; font-size:12px; text-align:left;">' +
@@ -2079,7 +2185,7 @@
           '<th style="padding:6px 10px;">Semester</th>' +
           '<th style="padding:6px 10px;">Periode Waktu</th>' +
           '<th style="padding:6px 10px;">Rata-rata Pengukuran</th>' +
-          '<th style="padding:6px 10px;">Baku Mutu Maksimum</th>' +
+          '<th style="padding:6px 10px;">Baku Mutu Emisi</th>' +
           '<th style="padding:6px 10px;">Status Kepatuhan</th>' +
           '</tr>' +
           '</thead>' +
@@ -2088,14 +2194,14 @@
         semesterList.forEach((s, idx) => {
           const val = semValues[idx];
           const hasVal = (val !== null && val !== undefined);
-          const isOver = (hasVal && param.maxVal !== null && val > param.maxVal);
+          const isOver = (hasVal && bakuMutuVal !== null && val > bakuMutuVal);
           const statusText = !hasVal ? '<span style="color:#94a3b8;">- (Tidak Ada Data)</span>' : (isOver ? '<span style="color:#dc2626;font-weight:700;">⚠ Melebihi Baku Mutu</span>' : '<span style="color:#16a34a;font-weight:600;">✔ Memenuhi</span>');
 
           tblHtml += '<tr style="border-bottom:1px solid #f1f5f9; background:' + (idx % 2 === 0 ? '#ffffff' : '#f8fafc') + ';">' +
             '<td style="padding:5px 10px; font-weight:700; color:#0b5394;">' + s.label + '</td>' +
             '<td style="padding:5px 10px; color:#475569;">' + s.fullTitle + '</td>' +
             '<td style="padding:5px 10px; font-weight:600;' + (isOver ? 'color:#dc2626;' : '') + '">' + (hasVal ? fmtVal(val) + ' ' + escapeHtml(activeUnit) : '-') + '</td>' +
-            '<td style="padding:5px 10px; color:#64748b;">' + (param.maxVal !== null ? param.maxVal + ' ' + escapeHtml(activeUnit) : '-') + '</td>' +
+            '<td style="padding:5px 10px; color:#64748b;">' + (bakuMutuVal !== null ? bakuMutuVal + ' ' + escapeHtml(activeUnit) : '-') + '</td>' +
             '<td style="padding:5px 10px;">' + statusText + '</td>' +
             '</tr>';
         });
@@ -2123,7 +2229,7 @@
         pointHoverRadius: 8,
         pointBackgroundColor: function (ctx) {
           const val = ctx.raw;
-          if (val !== null && param.maxVal !== null && val > param.maxVal) return '#dc2626';
+          if (val !== null && bakuMutuVal !== null && val > bakuMutuVal) return '#dc2626';
           return '#0b5394';
         },
         pointBorderColor: '#ffffff',
@@ -2133,10 +2239,10 @@
       });
 
       // Dataset 2: Garis Batas Baku Mutu (Garis putus-putus merah)
-      if (param.maxVal !== null) {
+      if (bakuMutuVal !== null) {
         datasets.push({
-          label: 'Batas Baku Mutu (' + param.maxVal + ' ' + activeUnit + ')',
-          data: Array(20).fill(param.maxVal),
+          label: 'Batas Baku Mutu (' + bakuMutuVal + ' ' + activeUnit + ')',
+          data: Array(semesterList.length).fill(bakuMutuVal),
           borderColor: '#dc2626',
           borderWidth: 2,
           borderDash: [6, 4],
@@ -2191,13 +2297,14 @@
           },
           scales: {
             x: {
-              title: { display: true, text: 'Semester (Rentang 10 Tahun: ' + startYear + ' - ' + endYear + ')', font: { size: 12, weight: 'bold' } },
+              title: { display: true, text: 'Semester (' + startYear + ' s/d ' + endYear + ')', font: { size: 12, weight: 'bold' } },
               grid: { color: '#e2e8f0' },
               ticks: { font: { size: 11, weight: '600' }, color: '#334155' }
             },
             y: {
               type: 'linear',
               min: 0,
+              suggestedMax: graphMaxVal,
               title: { display: true, text: param.name + ' (' + activeUnit + ')', font: { size: 12, weight: 'bold' } },
               ticks: {
                 maxTicksLimit: 7,
@@ -2216,16 +2323,17 @@
       const loc = document.getElementById('chartLocation').value;
       const cerobong = document.getElementById('chartCerobong').value;
       const paramId = document.getElementById('chartParameter').value;
-      const endYearVal = document.getElementById('chartEndYear').value;
+      const startYearVal = document.getElementById('chartStartYear') ? document.getElementById('chartStartYear').value : '';
+      const endYearVal = document.getElementById('chartEndYear') ? document.getElementById('chartEndYear').value : '';
 
-      if (!loc || !cerobong || !paramId || !endYearVal) {
-        alert('Silakan pilih Location, Kode Cerobong/Desa, Parameter Monitoring, dan Periode 10 Tahun terlebih dahulu.');
+      if (!loc || !cerobong || !paramId || !startYearVal || !endYearVal) {
+        alert('Silakan pilih Location, Kode Cerobong/Desa, Parameter Monitoring, dan Periode terlebih dahulu.');
         return;
       }
 
       const param = PARAMETER_LIST.find(p => p.id === paramId) || PARAMETER_LIST[0];
+      const startYear = parseInt(startYearVal, 10);
       const endYear = parseInt(endYearVal, 10);
-      const startYear = endYear - 9;
 
       const filtered = databaseRecords.filter(item => {
         return item.location === loc && String(item.kodeCerobong).trim() === String(cerobong).trim();
@@ -2270,21 +2378,23 @@
       // Sheet 1: Grafik Parameter Terpilih (20 Semester)
       const sheet1Data = [];
       sheet1Data.push(['Laporan Pemantauan Kualitas Udara - ' + loc + ' / Cerobong-Desa ' + cerobong]);
-      sheet1Data.push(['Parameter: ' + param.name + ' (' + param.unit + ') | Periode: 10 Tahun (20 Semester: ' + startYear + ' - ' + endYear + ')']);
+      sheet1Data.push(['Parameter: ' + param.name + ' (' + param.unit + ') | Periode: ' + startYear + ' s/d ' + endYear]);
       sheet1Data.push([]);
       sheet1Data.push(['No', 'Semester', 'Periode Lengkap', param.name + ' (' + param.unit + ')', 'Baku Mutu Maksimum', 'Status Kepatuhan']);
+
+      const bmVal = getParamBakuMutu(param.id, param.unit);
 
       semesterList.forEach((s, idx) => {
         const val = semParamAverages[param.id][idx];
         const hasVal = (val !== null && val !== undefined);
-        const isOver = (hasVal && param.maxVal !== null && val > param.maxVal);
+        const isOver = (hasVal && bmVal !== null && val > bmVal);
         const status = !hasVal ? 'Belum Ada Data' : (isOver ? 'Melebihi Baku Mutu' : 'Memenuhi Baku Mutu');
         sheet1Data.push([
           idx + 1,
           s.label,
           s.fullTitle,
           hasVal ? val : '',
-          param.maxVal !== null ? param.maxVal : '-',
+          bmVal !== null ? bmVal : '-',
           status
         ]);
       });
@@ -2295,7 +2405,7 @@
 
       // Sheet 2: Ringkasan Seluruh Parameter (20 Semester)
       const sheet2Data = [];
-      sheet2Data.push(['Matriks Seluruh Parameter (20 Semester / 10 Tahun: ' + startYear + ' - ' + endYear + ') - ' + loc + ' / Cerobong-Desa ' + cerobong]);
+      sheet2Data.push(['Matriks Seluruh Parameter (Periode: ' + startYear + ' s/d ' + endYear + ') - ' + loc + ' / Cerobong-Desa ' + cerobong]);
       sheet2Data.push([]);
       sheet2Data.push(['Semester', 'Tahun', 'Periode', ...PARAMETER_LIST.map(p => p.name + ' (' + p.unit + ')')]);
       semesterList.forEach((s, idx) => {
